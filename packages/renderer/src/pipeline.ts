@@ -1,4 +1,5 @@
 import type { PxlAnyNode } from '@react-pxl/core';
+import { resolveStyle } from '@react-pxl/core';
 import { drawRect } from './drawRect';
 import { drawText } from './drawText';
 import { drawImage } from './drawImage';
@@ -82,7 +83,7 @@ export class CanvasPipeline {
     const x = parentX + node.layout.x;
     const y = parentY + node.layout.y;
     const { width, height } = node.layout;
-    const style = node.props.style ?? {};
+    const style = resolveStyle(node.props.style ?? {});
 
     // Skip hidden nodes
     if (style.display === 'none') return;

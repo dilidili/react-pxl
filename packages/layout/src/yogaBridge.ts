@@ -1,4 +1,5 @@
 import type { PxlAnyNode, PxlStyle, ComputedLayout } from '@react-pxl/core';
+import { resolveStyle } from '@react-pxl/core';
 
 /**
  * YogaBridge maps PxlNode style props to Yoga layout nodes and computes layout.
@@ -9,6 +10,7 @@ import type { PxlAnyNode, PxlStyle, ComputedLayout } from '@react-pxl/core';
 export class YogaBridge {
   private yoga: any;
   private nodeMap = new WeakMap<PxlAnyNode, any>();
+  private measureCtx: CanvasRenderingContext2D | null = null;
 
   private constructor(yoga: any) {
     this.yoga = yoga;
@@ -16,10 +18,13 @@ export class YogaBridge {
 
   /** Create and initialize the Yoga bridge (loads WASM) */
   static async create(): Promise<YogaBridge> {
-    // Dynamic import so WASM is loaded lazily
-    const yogaModule = await import('yoga-wasm-web');
-    const yoga = await yogaModule.default();
+    const { default: yoga } = await import('yoga-wasm-web/auto');
     return new YogaBridge(yoga);
+  }
+
+  /** Set the canvas context used for text measurement */
+  setMeasureContext(ctx: CanvasRenderingContext2D): void {
+    this.measureCtx = ctx;
   }
 
   /** Create a Yoga node for a PxlNode and apply its styles */
@@ -49,7 +54,7 @@ export class YogaBridge {
     const yn = yogaNode ?? this.nodeMap.get(node);
     if (!yn) return;
 
-    const style: PxlStyle = node.props.style ?? {};
+    const style: PxlStyle = resolveStyle(node.props.style ?? {});
     const Y = this.yoga;
 
     // Display
@@ -205,11 +210,28 @@ export class YogaBridge {
     if (!yogaNode) {
       yogaNode = this.createYogaNode(node);
     } else {
+      // Remove all existing children before re-inserting (avoids stale refs)
+      while (yogaNode.getChildCount() > 0) {
+        yogaNode.removeChild(yogaNode.getChild(0));
+      }
       this.applyStyles(node, yogaNode);
     }
 
     if (parentYoga) {
       parentYoga.insertChild(yogaNode, index);
+    }
+
+    // Text leaf nodes: set Yoga measure function for intrinsic sizing
+    if (node.type === 'text' && node.children.length === 0 && this.measureCtx) {
+      const textNode = node as any; // PxlTextNode
+      const ctx = this.measureCtx;
+      yogaNode.setMeasureFunc(
+        (width: number, widthMode: number, _height: number, _heightMode: number) => {
+          const maxWidth = widthMode === 0 /* UNDEFINED */ ? undefined : width;
+          const measured = textNode.measureText(ctx, maxWidth);
+          return { width: measured.width, height: measured.height };
+        }
+      );
     }
 
     for (let i = 0; i < node.children.length; i++) {

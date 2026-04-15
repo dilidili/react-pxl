@@ -229,13 +229,47 @@ export const hostConfig = {
 
   scheduleTimeout: setTimeout,
   cancelTimeout: clearTimeout,
-  getCurrentEventPriority: () => 0b0000000000000000000000000010000, // DefaultEventPriority
+
+  // --- Priority management (required by react-reconciler 0.31+) ---
+  getCurrentUpdatePriority: () => 0,
+  setCurrentUpdatePriority: (_priority: number) => {},
+  resolveUpdatePriority: () => 0,
+
+  // --- Suspense / preloading ---
+  maySuspendCommit: (_type: Type, _props: Props) => false,
+  preloadInstance: (_type: Type, _props: Props) => true,
+  startSuspendingCommit: () => {},
+  suspendInstance: (_type: Type, _props: Props) => {},
+  waitForCommitToBeReady: () => null,
+
+  // --- Transitions ---
+  NotPendingTransition: null as any,
+  HostTransitionContext: { $$typeof: Symbol.for('react.context'), _currentValue: null, _currentValue2: null },
+  shouldAttemptEagerTransition: () => false,
+  resetFormInstance: () => {},
+
+  // --- Event resolution ---
+  resolveEventType: () => '',
+  resolveEventTimeStamp: () => -1.1,
+
+  // --- Misc required ---
+  requestPostPaintCallback: () => {},
   getInstanceFromNode: () => null,
   prepareScopeUpdate: () => {},
   getInstanceFromScope: () => null,
   beforeActiveInstanceBlur: () => {},
   afterActiveInstanceBlur: () => {},
   detachDeletedInstance: () => {},
+
+  // --- Microtask support ---
+  supportsMicrotasks: true,
+  scheduleMicrotask: typeof queueMicrotask === 'function' ? queueMicrotask : setTimeout,
+
+  // --- Test selectors (opt-out) ---
+  supportsTestSelectors: false,
+
+  // --- Console binding ---
+  bindToConsole: (_methodName: string, _args: unknown[], _errorType: unknown) => Function.prototype.bind,
 
   clearContainer(container: Container): void {
     container.rootNode.children = [];

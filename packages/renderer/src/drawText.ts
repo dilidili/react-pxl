@@ -1,4 +1,5 @@
 import type { PxlTextNode } from '@react-pxl/core';
+import { resolveStyle } from '@react-pxl/core';
 
 /**
  * Draw text content to canvas with word wrapping and alignment.
@@ -13,9 +14,9 @@ export function drawText(
 ): void {
   if (!node.textContent) return;
 
-  const style = node.props.style ?? {};
+  const style = resolveStyle(node.props.style ?? {});
 
-  // Draw background if present
+  // Draw background + border radius for text containers
   if (style.backgroundColor) {
     ctx.save();
     ctx.fillStyle = style.backgroundColor;
@@ -32,7 +33,16 @@ export function drawText(
   const letterSpacing = style.letterSpacing ?? 0;
   const textAlign = node.textAlign;
 
-  // Word wrap
+  // Padding is handled by Yoga for child positioning, but text nodes
+  // need to respect their own padding for text inset
+  const pt = style.paddingTop ?? 0;
+  const pr = style.paddingRight ?? 0;
+  const pl = style.paddingLeft ?? 0;
+
+  // Available width for text wrapping (subtract padding from layout width)
+  const textAreaWidth = width - pl - pr;
+
+  // Word wrap within available width
   const words = node.textContent.split(' ');
   const lines: string[] = [];
   let currentLine = '';
@@ -41,7 +51,7 @@ export function drawText(
     const testLine = currentLine ? `${currentLine} ${word}` : word;
     const metrics = ctx.measureText(testLine);
 
-    if (metrics.width > width && currentLine) {
+    if (metrics.width > textAreaWidth && currentLine) {
       lines.push(currentLine);
       currentLine = word;
     } else {
@@ -51,13 +61,10 @@ export function drawText(
   if (currentLine) lines.push(currentLine);
 
   // Render each line
-  const paddingTop = style.paddingTop ?? 0;
-  const paddingLeft = style.paddingLeft ?? 0;
-
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    let lineX = x + paddingLeft;
-    const lineY = y + paddingTop + i * lineHeight;
+    let lineX = x + pl;
+    const lineY = y + pt + i * lineHeight;
 
     // Alignment
     if (textAlign === 'center') {
@@ -65,8 +72,7 @@ export function drawText(
       lineX = x + (width - lineWidth) / 2;
     } else if (textAlign === 'right') {
       const lineWidth = ctx.measureText(line).width;
-      const paddingRight = style.paddingRight ?? 0;
-      lineX = x + width - lineWidth - paddingRight;
+      lineX = x + width - lineWidth - pr;
     }
 
     // Letter spacing

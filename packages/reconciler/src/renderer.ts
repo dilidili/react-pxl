@@ -47,11 +47,12 @@ export async function render(
     const pipeline = new CanvasPipeline(canvas);
     const rootNode = new PxlNode({ style: { width: pipeline.width, height: pipeline.height } });
 
+    // Set canvas context for text measurement during Yoga layout
+    yoga.setMeasureContext(pipeline.context);
+
     const onCommit = () => {
-      // Rebuild Yoga tree and compute layout
       yoga.buildTree(rootNode);
       yoga.computeLayout(rootNode, pipeline.width, pipeline.height);
-      // Trigger canvas render
       pipeline.markDirty();
     };
 
@@ -73,7 +74,8 @@ export async function render(
     pipeline.start();
   }
 
-  reconciler.updateContainer(element, root.container, null, callback ?? (() => {}));
+  reconciler.updateContainerSync(element, root.container, null, callback ?? (() => {}));
+  reconciler.flushSyncWork();
 }
 
 /** Unmount the React tree from a canvas */

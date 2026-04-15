@@ -1,4 +1,5 @@
 import type { PxlStyle } from './styles';
+import { resolveStyle } from './styles';
 
 /**
  * Default styles for HTML elements, mimicking browser UA stylesheet.
@@ -90,7 +91,8 @@ export function getElementDefaults(tagName: string): PxlStyle {
 
 /**
  * Merge styles in specificity order: elementDefaults ← className ← inline style.
- * Later values override earlier ones.
+ * Shorthands in each layer are expanded before merging so that e.g.
+ * inline `margin: 0` correctly overrides a default `marginBottom: 12`.
  */
 export function mergeStyles(
   elementDefaults: PxlStyle,
@@ -98,8 +100,8 @@ export function mergeStyles(
   inlineStyle: PxlStyle | undefined
 ): PxlStyle {
   return {
-    ...elementDefaults,
-    ...classNameStyle,
-    ...(inlineStyle ?? {}),
+    ...resolveStyle(elementDefaults),
+    ...resolveStyle(classNameStyle),
+    ...resolveStyle(inlineStyle ?? {}),
   };
 }
