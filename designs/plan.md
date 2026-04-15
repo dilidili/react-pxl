@@ -235,6 +235,17 @@ The biggest barrier to canvas UI has always been the development cost — you mu
 - [x] **3.3** Event dispatcher with bubbling *(scaffolded)*
 - [ ] **3.4** Focus management and keyboard events
 - [ ] **3.5** Scroll containers (virtual scrolling on canvas)
+  - `overflow: 'scroll'` triggers implicit virtualization — no new components or API
+  - Render-phase culling: skip drawing children outside scroll viewport
+  - Layout-phase caching: Yoga computes all positions, skip re-layout for unchanged off-screen nodes
+  - Reconcile-phase deferral: use `startTransition` to defer mounting off-screen children
+  - Scroll offset tracking via wheel/touch events on canvas
+  - Developer syntax stays identical to non-scrolling lists:
+    ```tsx
+    <div style={{ height: 600, overflow: 'scroll' }}>
+      {items.map(item => <Row key={item.id} {...item} />)}
+    </div>
+    ```
 - [ ] **3.6** Cursor management (pointer, text, etc.)
 
 ### Phase 4: Advanced Features

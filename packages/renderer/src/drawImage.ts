@@ -1,6 +1,25 @@
 import type { PxlImageNode } from '@react-pxl/core';
 import type { PxlStyle, ObjectFit } from '@react-pxl/core';
 
+/** Build a rounded rectangle path on the context */
+function roundedRectPath(
+  ctx: CanvasRenderingContext2D,
+  x: number, y: number, w: number, h: number,
+  tl: number, tr: number, br: number, bl: number
+): void {
+  ctx.beginPath();
+  ctx.moveTo(x + tl, y);
+  ctx.lineTo(x + w - tr, y);
+  ctx.arcTo(x + w, y, x + w, y + tr, tr);
+  ctx.lineTo(x + w, y + h - br);
+  ctx.arcTo(x + w, y + h, x + w - br, y + h, br);
+  ctx.lineTo(x + bl, y + h);
+  ctx.arcTo(x, y + h, x, y + h - bl, bl);
+  ctx.lineTo(x, y + tl);
+  ctx.arcTo(x, y, x + tl, y, tl);
+  ctx.closePath();
+}
+
 /**
  * Compute source rect and dest rect for object-fit modes.
  */
@@ -110,9 +129,18 @@ export function drawImage(
 
   ctx.save();
 
-  // Clip to box bounds (handles border-radius clipping via parent drawRect path)
-  ctx.beginPath();
-  ctx.rect(x, y, width, height);
+  // Clip to border-radius shape (or plain rect if no radius)
+  const tl = style.borderTopLeftRadius ?? 0;
+  const tr = style.borderTopRightRadius ?? 0;
+  const br = style.borderBottomRightRadius ?? 0;
+  const bl = style.borderBottomLeftRadius ?? 0;
+
+  if (tl || tr || br || bl) {
+    roundedRectPath(ctx, x, y, width, height, tl, tr, br, bl);
+  } else {
+    ctx.beginPath();
+    ctx.rect(x, y, width, height);
+  }
   ctx.clip();
 
   ctx.drawImage(node.image, sx, sy, sw, sh, x + dx, y + dy, dw, dh);
