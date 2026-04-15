@@ -41,6 +41,26 @@ export function TestComponent() {
         flexDirection: 'row',
         gap: 12,
       }}>
+        {/* Image card */}
+        <div style={{
+          width: 80,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#ffffff',
+          borderRadius: 8,
+          padding: 8,
+          overflow: 'hidden',
+        }}>
+          <img
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' fill='%23f59e0b'/%3E%3Ccircle cx='32' cy='28' r='12' fill='%23ffffff'/%3E%3Crect x='16' y='44' width='32' height='16' rx='4' fill='%23ffffff'/%3E%3C/svg%3E"
+            alt="avatar"
+            style={{ width: 48, height: 48, borderRadius: 24 }}
+          />
+          <span style={{ fontSize: 10, color: '#64748b', marginTop: 4 }}>Avatar</span>
+        </div>
+
         <div style={{
           flex: 1,
           display: 'flex',
