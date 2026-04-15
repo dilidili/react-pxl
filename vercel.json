@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd docs && npm run build",
+  "buildCommand": "cd docs && npm install && npm run build",
   "outputDirectory": "docs/out",
-  "framework": "nextjs"
+  "framework": null
 }
