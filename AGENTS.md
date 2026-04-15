@@ -5,7 +5,13 @@
 ## Project Context
 
 react-pxl is a React custom renderer targeting HTML Canvas instead of DOM.  
-See [plan.md](../plan.md) for full architecture, value analysis, and phased roadmap.
+See [`designs/`](./designs/) for architecture docs, value analysis, and phased roadmap.
+
+### Key Documents
+
+| Document | Description |
+|----------|-------------|
+| [`designs/plan.md`](./designs/plan.md) | Full project plan: problem statement, value analysis, architecture, 6-phase roadmap, project structure, risks |
 
 ## Architecture (quick ref)
 
