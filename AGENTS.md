@@ -12,6 +12,7 @@ See [`designs/`](./designs/) for architecture docs, value analysis, and phased r
 | Document | Description |
 |----------|-------------|
 | [`designs/plan.md`](./designs/plan.md) | Full project plan: problem statement, value analysis, architecture, 6-phase roadmap, project structure, risks |
+| [`designs/execution-dom-compat.md`](./designs/execution-dom-compat.md) | Execution plan: DOM-compatible JSX rendering + Tailwind utility class support |
 
 ## Architecture (quick ref)
 
@@ -41,8 +42,11 @@ npm run typecheck # tsc --noEmit
 ## Conventions
 
 - **TypeScript strict** — no `any` except Yoga WASM interop
-- **Style props** — React Native-style (not CSS classes). See `core/src/styles/`
-- **Node types** — `pxl-view`, `pxl-text`, `pxl-image` in reconciler
+- **Style props** — React inline style format (camelCase), same as react-dom
+- **DOM-compatible JSX** — `<div>`, `<span>`, `<p>`, `<h1>`, `<img>`, `<button>` all work (see execution-dom-compat.md)
+- **Tailwind utility classes** — `className="flex p-4 bg-white"` parsed at runtime
+- **Custom primitives also work** — `<View>`, `<Text>`, `<Image>` for explicit canvas control
+- **Node types** — HTML elements auto-mapped in reconciler; custom via `pxl-view`, `pxl-text`, `pxl-image`
 - **Tests** — colocated in `__tests__/` dirs, vitest
 - **No DOM dependencies** in core/layout/renderer — canvas-only
 
