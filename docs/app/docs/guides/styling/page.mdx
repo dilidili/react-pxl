@@ -1,0 +1,105 @@
+---
+title: Styling
+---
+
+# Styling
+
+react-pxl supports three styling approaches that compose naturally.
+
+## Inline Styles
+
+```tsx
+<div style={{
+  flexDirection: 'row',
+  padding: 16,
+  backgroundColor: '#1e293b',
+  borderRadius: 8,
+  gap: 12,
+}}>
+  <p style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>
+    Inline styled
+  </p>
+</div>
+```
+
+### Supported Style Properties
+
+**Layout** (powered by Yoga flexbox):
+`display`, `flexDirection`, `flexWrap`, `flex`, `flexGrow`, `flexShrink`, `flexBasis`, `alignItems`, `alignSelf`, `justifyContent`, `gap`, `position`, `top`, `right`, `bottom`, `left`, `overflow`
+
+**Sizing:**
+`width`, `height`, `minWidth`, `minHeight`, `maxWidth`, `maxHeight`
+
+**Spacing:**
+`padding`, `paddingTop/Right/Bottom/Left`, `margin`, `marginTop/Right/Bottom/Left`
+
+**Typography:**
+`fontSize`, `fontFamily`, `fontWeight`, `fontStyle`, `lineHeight`, `textAlign`, `color`
+
+**Background:**
+`backgroundColor`
+
+**Border:**
+`borderWidth`, `borderColor`, `borderRadius`, `borderTopWidth`, etc.
+
+**Effects:**
+`opacity`, `boxShadow`
+
+**Images:**
+`objectFit`
+
+### Shorthand Properties
+
+Shorthands expand to their individual properties:
+
+```tsx
+// These are equivalent:
+<div style={{ padding: 16 }} />
+<div style={{ paddingTop: 16, paddingRight: 16, paddingBottom: 16, paddingLeft: 16 }} />
+
+// These are equivalent:
+<div style={{ borderWidth: 2 }} />
+<div style={{ borderTopWidth: 2, borderRightWidth: 2, borderBottomWidth: 2, borderLeftWidth: 2 }} />
+```
+
+## Tailwind Classes
+
+Use familiar Tailwind utility classes via `className`:
+
+```tsx
+<div className="flex flex-row items-center p-4 bg-slate-800 rounded-lg gap-3">
+  <p className="text-white text-lg font-bold">
+    Tailwind styled
+  </p>
+</div>
+```
+
+See the [DOM Compatibility](/docs/guides/dom-compat) guide for the full list of supported utilities.
+
+## Element Defaults
+
+HTML elements come with sensible defaults that match browser behavior:
+
+| Element | Default styles |
+|---------|---------------|
+| `<div>` | `display: 'flex'`, `flexDirection: 'column'` |
+| `<span>` | `flexDirection: 'row'`, `flexShrink: 1` |
+| `<p>` | `marginBottom: 12` |
+| `<h1>` | `fontSize: 32`, `fontWeight: 'bold'`, `marginBottom: 16` |
+| `<h2>` | `fontSize: 24`, `fontWeight: 'bold'`, `marginBottom: 12` |
+| `<button>` | `padding: 8/16`, `backgroundColor: '#e5e7eb'`, `borderRadius: 4` |
+
+## Combining Approaches
+
+All three methods compose with a clear override order:
+
+```tsx
+// Element default → className → inline style
+<button className="bg-blue-500 rounded-lg" style={{ padding: 20 }}>
+  Button with all three styling methods
+</button>
+```
+
+1. `<button>` defaults provide base padding, border, cursor
+2. `className` overrides background and border-radius
+3. `style` overrides padding

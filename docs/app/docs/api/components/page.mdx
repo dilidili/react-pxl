@@ -1,0 +1,82 @@
+---
+title: Components
+---
+
+# Supported Components
+
+react-pxl uses **standard HTML elements** as its component API. There are no special imports — just write normal JSX.
+
+## Container Elements
+
+```tsx
+<div />       // Flex container (column)
+<span />      // Inline container (row)
+<section />   // Semantic container
+<nav />       // Navigation container
+<header />    // Header container
+<footer />    // Footer container
+<main />      // Main content container
+<article />   // Article container
+<aside />     // Sidebar container
+```
+
+## Text Elements
+
+```tsx
+<p />          // Paragraph (marginBottom: 12)
+<h1 />         // Heading 1 (fontSize: 32, bold)
+<h2 />         // Heading 2 (fontSize: 24, bold)
+<h3 />         // Heading 3 (fontSize: 20, bold)
+<h4 />         // Heading 4 (fontSize: 18, bold)
+<h5 />         // Heading 5 (fontSize: 16, bold)
+<h6 />         // Heading 6 (fontSize: 14, bold)
+```
+
+## Interactive Elements
+
+```tsx
+<button />     // Button with default styling + pointer cursor
+<a />          // Link with underline + pointer cursor
+```
+
+## Media Elements
+
+```tsx
+<img src="..." />   // Async image with object-fit support
+```
+
+## List Elements
+
+```tsx
+<ul />         // Unordered list container
+<ol />         // Ordered list container
+<li />         // List item
+```
+
+## Props
+
+All elements accept these props:
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `style` | `object` | Inline styles (flexbox + visual) |
+| `className` | `string` | Tailwind utility classes |
+| `onClick` | `function` | Click handler |
+| `onPointerDown` | `function` | Pointer down handler |
+| `onPointerUp` | `function` | Pointer up handler |
+| `onPointerMove` | `function` | Pointer move handler |
+| `onPointerEnter` | `function` | Pointer enter handler |
+| `onPointerLeave` | `function` | Pointer leave handler |
+| `onKeyDown` | `function` | Keyboard down handler |
+| `onKeyUp` | `function` | Keyboard up handler |
+| `onFocus` | `function` | Focus handler |
+| `onBlur` | `function` | Blur handler |
+| `onScroll` | `function` | Scroll handler |
+| `tabIndex` | `number` | Focus order |
+
+### Image-specific Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `src` | `string` | Image URL or data URI |
+| `alt` | `string` | Alt text (for accessibility layer) |

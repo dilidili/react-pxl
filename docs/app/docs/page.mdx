@@ -1,0 +1,49 @@
+---
+title: Introduction
+---
+
+# Introduction
+
+react-pxl is a **React custom renderer** that draws your UI to an HTML Canvas instead of the DOM. It uses:
+
+- **react-reconciler** — React's official reconciler API for custom renderers
+- **Yoga WASM** — Facebook's flexbox layout engine, compiled to WebAssembly
+- **Canvas 2D API** — hardware-accelerated drawing in every browser
+
+## Architecture
+
+```
+JSX → react-reconciler → PxlNode tree → Yoga WASM layout → Canvas 2D draw
+```
+
+Your React components produce a virtual node tree (PxlNodes). Yoga computes flexbox layout. The canvas pipeline draws rectangles, text, images, and borders using the computed positions.
+
+## Key Features
+
+| Feature | Status |
+|---------|--------|
+| Standard HTML elements (`<div>`, `<span>`, `<p>`, `<h1>`-`<h6>`, `<img>`) | ✅ |
+| Flexbox layout (direction, wrap, gap, align, justify) | ✅ |
+| Text rendering (wrapping, alignment, font styles) | ✅ |
+| Image rendering (async loading, object-fit, border-radius clipping) | ✅ |
+| Tailwind utility classes (`className="flex p-4 bg-blue-500"`) | ✅ |
+| Event system (click, pointer, keyboard, focus, scroll) | ✅ |
+| Scroll containers (`overflow: 'scroll'`) | ✅ |
+| HiDPI / devicePixelRatio support | ✅ |
+| Dirty-rect render optimization | ✅ |
+| Box shadows, opacity, border-radius | ✅ |
+
+## DOM Compatibility
+
+Unlike other canvas renderers that require proprietary components (`<Rect>`, `<Layer>`), react-pxl renders standard HTML elements:
+
+```tsx
+// This works in BOTH react-dom and react-pxl
+<div style={{ display: 'flex', padding: 16, gap: 8 }}>
+  <h1 style={{ fontSize: 24, color: '#333' }}>Title</h1>
+  <p style={{ fontSize: 14, color: '#666' }}>Paragraph text</p>
+  <img src="avatar.png" style={{ width: 48, height: 48, borderRadius: 24 }} />
+</div>
+```
+
+No migration needed. Your existing React code renders to canvas as-is.

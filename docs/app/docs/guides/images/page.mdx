@@ -1,0 +1,78 @@
+---
+title: Images
+---
+
+# Images
+
+react-pxl supports async image loading with object-fit modes and border-radius clipping.
+
+## Basic Usage
+
+```tsx
+<img
+  src="https://example.com/photo.jpg"
+  alt="A photo"
+  style={{ width: 200, height: 150 }}
+/>
+```
+
+Images load asynchronously. While loading, a gray placeholder is shown. On error, a red placeholder appears. Once loaded, the canvas automatically re-renders.
+
+## Object Fit
+
+Control how images scale within their container:
+
+```tsx
+<img src="photo.jpg" style={{ width: 200, height: 200, objectFit: 'cover' }} />
+```
+
+| Mode | Behavior |
+|------|----------|
+| `fill` (default) | Stretches to fill the box |
+| `contain` | Scales to fit within the box, centered, preserving aspect ratio |
+| `cover` | Scales to fill the box, cropping excess, preserving aspect ratio |
+| `none` | No scaling, centered at original size |
+| `scale-down` | Like `contain`, but never scales up past original size |
+
+With Tailwind classes:
+
+```tsx
+<img src="photo.jpg" className="w-48 h-48 object-cover rounded-lg" />
+```
+
+## Border Radius Clipping
+
+Images respect `borderRadius` for circular or rounded clipping:
+
+```tsx
+// Circular avatar
+<img
+  src="avatar.png"
+  style={{
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+  }}
+/>
+```
+
+## Intrinsic Sizing
+
+If you don't set explicit `width`/`height`, the image node uses its natural dimensions for Yoga layout:
+
+```tsx
+// Image will size itself based on its intrinsic dimensions
+<img src="photo.jpg" />
+```
+
+## Data URIs
+
+Data URIs work for inline images:
+
+```tsx
+<img src="data:image/svg+xml,%3Csvg..." style={{ width: 48, height: 48 }} />
+```
+
+## CORS
+
+Images set `crossOrigin='anonymous'` automatically to support cross-origin sources.

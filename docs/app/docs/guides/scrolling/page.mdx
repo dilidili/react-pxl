@@ -1,0 +1,45 @@
+---
+title: Scrolling
+---
+
+# Scrolling
+
+react-pxl supports scrollable containers with `overflow: 'scroll'`. The API is identical to CSS — no special components needed.
+
+## Basic Scroll Container
+
+```tsx
+<div style={{ height: 400, overflow: 'scroll' }}>
+  {items.map(item => (
+    <div key={item.id} style={{ padding: 16, borderBottom: '1px solid #e2e8f0' }}>
+      {item.name}
+    </div>
+  ))}
+</div>
+```
+
+## How It Works
+
+1. **Wheel events** on the canvas are captured and routed to the nearest `overflow: 'scroll'` ancestor
+2. **Scroll offsets** (`scrollTop`, `scrollLeft`) are tracked per node
+3. **Content is clamped** — can't scroll past the edges
+4. **Viewport culling** — children outside the visible scroll region are skipped during rendering
+
+## Scroll Events
+
+```tsx
+<div
+  style={{ height: 400, overflow: 'scroll' }}
+  onScroll={(e) => console.log('Scrolled!')}
+>
+  {/* content */}
+</div>
+```
+
+## Nested Scroll Containers
+
+The event system finds the nearest scrollable ancestor of the hovered node, so nested scroll containers work naturally.
+
+## Performance
+
+The render pipeline automatically culls off-screen children in scroll containers. Only visible items are drawn, keeping frame rates high even with thousands of items.

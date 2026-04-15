@@ -1,0 +1,55 @@
+---
+title: render()
+---
+
+# render()
+
+Renders a React element tree to an HTML canvas.
+
+## Signature
+
+```ts
+function render(element: React.ReactElement, canvas: HTMLCanvasElement): void
+```
+
+## Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `element` | `React.ReactElement` | The root React element to render |
+| `canvas` | `HTMLCanvasElement` | The target canvas element |
+
+## Usage
+
+```tsx
+import { render } from 'react-pxl'
+
+function App() {
+  return (
+    <div style={{ padding: 20 }}>
+      <h1 style={{ color: '#1e293b' }}>Hello react-pxl</h1>
+      <p>Rendered to canvas!</p>
+    </div>
+  )
+}
+
+const canvas = document.getElementById('canvas') as HTMLCanvasElement
+render(<App />, canvas)
+```
+
+## Behavior
+
+1. Creates a `react-reconciler` container bound to the canvas
+2. Synchronously reconciles the React element tree
+3. Computes flexbox layout via Yoga WASM
+4. Renders the tree to canvas via the 2D rendering pipeline
+5. Attaches the event dispatcher (pointer, keyboard, focus, scroll)
+6. Subsequent state updates trigger re-renders automatically
+
+## HiDPI Support
+
+The renderer automatically handles `devicePixelRatio` for sharp rendering on high-DPI displays. The canvas is sized to logical pixels; the internal resolution is scaled up.
+
+## Re-rendering
+
+After the initial `render()`, React manages updates automatically. When component state changes (via `useState`, etc.), only the dirty regions of the canvas are repainted.

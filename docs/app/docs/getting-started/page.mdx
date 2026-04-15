@@ -1,0 +1,129 @@
+---
+title: Getting Started
+---
+
+# Getting Started
+
+## Installation
+
+```bash
+npm install react-pxl react
+```
+
+## Basic Usage
+
+Create a canvas element and render your React tree into it:
+
+```tsx
+import { render } from 'react-pxl'
+
+function App() {
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      width: 800,
+      height: 600,
+      backgroundColor: '#f8fafc',
+      padding: 24,
+      gap: 16,
+    }}>
+      <h1 style={{ fontSize: 28, fontWeight: 'bold', color: '#1e293b' }}>
+        Hello, Canvas!
+      </h1>
+      <p style={{ fontSize: 16, color: '#64748b' }}>
+        This entire UI is rendered on a single canvas element.
+      </p>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 12,
+      }}>
+        <button
+          style={{
+            backgroundColor: '#3b82f6',
+            color: '#fff',
+            padding: 12,
+            borderRadius: 8,
+            fontSize: 14,
+          }}
+          onClick={() => console.log('Clicked!')}
+        >
+          Click me
+        </button>
+      </div>
+    </div>
+  )
+}
+
+const canvas = document.getElementById('canvas') as HTMLCanvasElement
+render(<App />, canvas)
+```
+
+## HTML Setup
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+  <canvas id="canvas" width="800" height="600"
+    style="width: 800px; height: 600px;" />
+  <script type="module" src="./main.tsx"></script>
+</body>
+</html>
+```
+
+## With Vite
+
+react-pxl works great with Vite. Create a project:
+
+```bash
+npm create vite@latest my-app -- --template react-ts
+cd my-app
+npm install react-pxl
+```
+
+Replace `main.tsx`:
+
+```tsx
+import { render } from 'react-pxl'
+import App from './App'
+
+const canvas = document.createElement('canvas')
+canvas.width = 800
+canvas.height = 600
+canvas.style.width = '800px'
+canvas.style.height = '600px'
+document.getElementById('root')!.replaceWith(canvas)
+
+render(<App />, canvas)
+```
+
+## Tailwind Classes
+
+react-pxl includes a built-in runtime Tailwind parser. Use `className` just like you would with react-dom:
+
+```tsx
+<div className="flex flex-col p-6 gap-4 bg-slate-100">
+  <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
+  <div className="flex flex-row gap-3">
+    <div className="flex-1 p-4 bg-blue-500 rounded-lg">
+      <span className="text-white font-bold">Card</span>
+    </div>
+  </div>
+</div>
+```
+
+Supported utilities include layout, spacing, sizing, typography, colors, borders, shadows, and opacity. See the [full list](/docs/guides/dom-compat#tailwind-utilities).
+
+## Unmounting
+
+```tsx
+import { render, unmount } from 'react-pxl'
+
+// Render
+render(<App />, canvas)
+
+// Later, clean up
+unmount(canvas)
+```

@@ -1,0 +1,58 @@
+---
+title: DOM Compatibility
+---
+
+# DOM Compatibility
+
+react-pxl renders standard HTML elements to canvas. No proprietary components needed.
+
+## Supported Elements
+
+| Element | Canvas behavior |
+|---------|----------------|
+| `<div>` | Flex container (column by default) |
+| `<span>` | Inline text container (row direction) |
+| `<p>` | Paragraph with bottom margin |
+| `<h1>`-`<h6>` | Headings with appropriate font sizes |
+| `<img>` | Async image loading with object-fit support |
+| `<button>` | Styled container with pointer cursor |
+| `<a>` | Styled text with pointer cursor |
+| `<ul>`, `<ol>`, `<li>` | List containers |
+| `<section>`, `<nav>`, `<header>`, `<footer>`, `<main>`, `<article>`, `<aside>` | Semantic containers (same as `<div>`) |
+
+## Style Merge Order
+
+Styles are resolved in this order (later wins):
+
+1. **Element defaults** — built-in UA-style defaults (e.g., `<p>` gets `marginBottom: 12`)
+2. **Tailwind classes** — `className="p-4 bg-blue-500"` parsed at runtime
+3. **Inline styles** — `style={{ padding: 16 }}` always wins
+
+```tsx
+// Element defaults provide marginBottom: 12 for <p>
+// className overrides with padding: 16
+// Inline style overrides color
+<p className="p-4" style={{ color: 'red' }}>
+  Combined styles
+</p>
+```
+
+## Tailwind Utilities
+
+The built-in parser supports these utility classes:
+
+**Layout:** `flex`, `flex-row`, `flex-col`, `flex-wrap`, `flex-1`, `items-*`, `justify-*`, `self-*`
+
+**Spacing:** `p-{n}`, `px-{n}`, `py-{n}`, `pt/pr/pb/pl-{n}`, `m-{n}`, `mx-{n}`, `my-{n}`, `mt/mr/mb/ml-{n}`, `gap-{n}`
+
+**Sizing:** `w-{n}`, `h-{n}`, `w-full`, `h-full`, `min-w-0`, `min-h-0`
+
+**Typography:** `text-xs` through `text-9xl`, `font-bold`, `font-normal`, `font-medium`, `text-left/center/right`
+
+**Colors:** Full Tailwind palette — `bg-{color}-{shade}`, `text-{color}-{shade}`, `border-{color}-{shade}`
+
+**Borders:** `rounded`, `rounded-{n}`, `rounded-full`, `border`, `border-{n}`
+
+**Effects:** `shadow`, `shadow-sm/md/lg`, `opacity-{n}`
+
+**Images:** `object-fill`, `object-contain`, `object-cover`, `object-none`, `object-scale-down`

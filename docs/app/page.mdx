@@ -1,0 +1,57 @@
+---
+title: react-pxl
+---
+
+import { Cards } from 'nextra/components'
+
+# react-pxl
+
+**React → Canvas. Declarative UI, pixel-perfect rendering.**
+
+react-pxl is a React custom renderer that targets HTML Canvas instead of DOM. Write standard JSX — `<div>`, `<span>`, `<h1>`, `<img>` — and it renders to a Canvas 2D context with flexbox layout, text wrapping, images, scrolling, and events.
+
+## Why?
+
+- **Zero migration** — your existing React components render to canvas without rewriting
+- **AI-native** — canvas output is deterministic, diffable, and optimized for LLM-generated UIs
+- **Performance** — single canvas element vs thousands of DOM nodes
+- **Portability** — render to any canvas: browser, node-canvas, OffscreenCanvas
+
+## Quick Start
+
+```bash
+npm install react-pxl
+```
+
+```tsx
+import { render } from 'react-pxl'
+
+function App() {
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      padding: 24,
+      gap: 12,
+      backgroundColor: '#f1f5f9',
+    }}>
+      <h1 style={{ fontSize: 28, color: '#1e293b' }}>
+        Hello, Canvas!
+      </h1>
+      <p style={{ fontSize: 16, color: '#64748b' }}>
+        This is rendered entirely on a canvas element.
+      </p>
+    </div>
+  )
+}
+
+const canvas = document.getElementById('root') as HTMLCanvasElement
+render(<App />, canvas)
+```
+
+<Cards>
+  <Cards.Card title="Getting Started" href="/docs/getting-started" />
+  <Cards.Card title="DOM Compatibility" href="/docs/guides/dom-compat" />
+  <Cards.Card title="Event System" href="/docs/guides/events" />
+  <Cards.Card title="API Reference" href="/docs/api" />
+</Cards>

@@ -1,0 +1,101 @@
+---
+title: Event System
+---
+
+# Event System
+
+react-pxl provides a full event system that mirrors DOM event behavior on canvas.
+
+## Pointer Events
+
+```tsx
+<div
+  onClick={(e) => console.log('Clicked at', e.canvasX, e.canvasY)}
+  onPointerDown={(e) => console.log('Pointer down')}
+  onPointerUp={(e) => console.log('Pointer up')}
+  onPointerMove={(e) => console.log('Moving')}
+  onPointerEnter={(e) => console.log('Enter')}
+  onPointerLeave={(e) => console.log('Leave')}
+>
+  Interactive element
+</div>
+```
+
+### Event Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `type` | `string` | Event name (e.g. `'onClick'`) |
+| `target` | `PxlNode` | The deepest node that was hit |
+| `currentTarget` | `PxlNode` | The node with the handler (during bubbling) |
+| `canvasX` / `canvasY` | `number` | Position relative to canvas |
+| `clientX` / `clientY` | `number` | Position relative to viewport |
+| `nativeEvent` | `Event` | The underlying DOM event |
+
+### Event Bubbling
+
+Events bubble from the target node up to the root, just like DOM:
+
+```tsx
+<div onClick={() => console.log('Parent clicked')}>
+  <button onClick={(e) => {
+    console.log('Button clicked')
+    e.stopPropagation() // Prevents parent handler
+  }}>
+    Click me
+  </button>
+</div>
+```
+
+## Keyboard Events
+
+Keyboard events fire on the currently focused node:
+
+```tsx
+<div
+  tabIndex={0}
+  onKeyDown={(e) => {
+    console.log('Key:', e.key, 'Code:', e.code)
+    if (e.key === 'Enter') doSomething()
+  }}
+  onKeyUp={(e) => console.log('Key up:', e.key)}
+>
+  Focusable element
+</div>
+```
+
+Keyboard event properties: `key`, `code`, `shiftKey`, `ctrlKey`, `altKey`, `metaKey`, `repeat`.
+
+## Focus Management
+
+Nodes with `tabIndex` or click/keyboard handlers are focusable:
+
+```tsx
+<div
+  tabIndex={0}
+  onFocus={() => console.log('Focused')}
+  onBlur={() => console.log('Blurred')}
+  style={{ borderWidth: 2, borderColor: 'blue' }}
+>
+  Tab to focus me
+</div>
+```
+
+- **Tab** / **Shift+Tab** cycles through focusable nodes
+- **Click** focuses the clicked node
+- Positive `tabIndex` values are visited first (ascending), then `tabIndex={0}` in tree order
+
+## Cursor Management
+
+The cursor automatically changes based on the hovered node:
+
+| Node type | Cursor |
+|-----------|--------|
+| Has `onClick` or `onPointerDown` | `pointer` |
+| Text node | `text` |
+| Default | `default` |
+
+## Hit Testing
+
+Hit testing traverses the tree in reverse child order (last child = top z-order).
+It respects scroll offsets in `overflow: 'scroll'` containers.

@@ -1,0 +1,41 @@
+---
+title: unmount()
+---
+
+# unmount()
+
+Unmounts a previously rendered React tree from a canvas and cleans up all resources.
+
+## Signature
+
+```ts
+function unmount(canvas: HTMLCanvasElement): void
+```
+
+## Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `canvas` | `HTMLCanvasElement` | The canvas to unmount |
+
+## Usage
+
+```tsx
+import { render, unmount } from 'react-pxl'
+
+const canvas = document.getElementById('canvas') as HTMLCanvasElement
+
+// Render
+render(<App />, canvas)
+
+// Later, clean up
+unmount(canvas)
+```
+
+## Behavior
+
+1. Detaches the event dispatcher (removes all canvas and window event listeners)
+2. Unmounts the React reconciler container
+3. Clears the canvas
+
+Call `unmount()` when removing the canvas from the page or when you need to stop rendering. This prevents memory leaks from lingering event listeners and image references.
