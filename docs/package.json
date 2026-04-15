@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build:demos": "vite build && mv public/demos/demos/*.html public/demos/ && rmdir public/demos/demos",
+    "build": "npm run build:demos && next build",
     "start": "next start"
   },
   "dependencies": {
@@ -13,5 +14,9 @@
     "nextra-theme-docs": "^4.6.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.1",
+    "vite": "^8.0.8"
   }
 }
