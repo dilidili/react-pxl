@@ -194,67 +194,78 @@ The biggest barrier to canvas UI has always been the development cost — you mu
 
 ## Implementation Phases
 
-### Phase 1: Foundation — Reconciler + Basic Rendering
+### Phase 1: Foundation — Reconciler + Basic Rendering ✅ COMPLETE
 > Get React JSX rendering rectangles and text on canvas.
 
-- **1.1** Project scaffolding (monorepo with packages: core, renderer, yoga-bridge)
-- **1.2** Implement `react-reconciler` host config (create, update, delete nodes)
-- **1.3** Build internal node tree (CanvasNode, TextNode, ImageNode)
-- **1.4** Integrate Yoga WASM — map style props to Yoga nodes, compute layout
-- **1.5** Canvas render loop — traverse tree, draw rects/text using computed layout
-- **1.6** Basic `render()` API: `ReactCanvas.render(<App />, canvasElement)`
-- **1.7** Unit tests for reconciler and layout
+- [x] **1.1** Project scaffolding (monorepo: core, reconciler, layout, renderer, events, components, ai-bridge)
+- [x] **1.2** `react-reconciler` host config (create, update, delete nodes; React 19 / reconciler 0.31 compat)
+- [x] **1.3** Internal node tree (PxlNode, PxlTextNode, PxlImageNode)
+- [x] **1.4** Yoga WASM integration (style → Yoga nodes, layout compute, text measurement)
+- [x] **1.5** Canvas render loop (rAF pipeline, draw rect/text/image, rounded rects, opacity, clipping)
+- [x] **1.6** `render()` / `unmount()` API with sync rendering
+- [x] **1.7** Unit tests (54 passing) + E2E visual diff pipeline
 
-### Phase 2: Rendering Pipeline — Text, Images, Styling
+**Bonus — DOM Compatibility (complete):**
+- [x] HTML element mapping (`<div>`, `<span>`, `<h1>`-`<h6>`, `<p>`, `<img>`, `<button>`, etc.)
+- [x] Browser UA-style element defaults
+- [x] Tailwind utility class parser (runtime, cached, full color palette)
+- [x] Style shorthand resolution (`margin`, `padding`, `borderWidth`, `borderRadius`)
+
+**Validation infrastructure (complete):**
+- [x] Playwright E2E: screenshots react-dom vs react-pxl, pixelmatch comparison
+- [x] `validate.sh` runner (UT + E2E), artifacts in `validation-results/`
+- [x] Current result: **1.07% pixel diff** (well within 5% tolerance)
+
+### Phase 2: Rendering Pipeline — Text, Images, Styling 🔄 IN PROGRESS
 > Make it visually useful.
 
-- **2.1** Text rendering — font loading, multi-line text, text measurement for Yoga
-- **2.2** Image rendering — async image loading, `<Image>` component
-- **2.3** Background colors, borders, border-radius (rounded rects)
-- **2.4** Box shadows and opacity
-- **2.5** Clipping (overflow: hidden)
-- **2.6** Dirty-rect optimization — only redraw changed regions
-- **2.7** HiDPI / devicePixelRatio support
+- [x] **2.1** Text rendering — word wrapping, font string, measurement for Yoga, alignment
+- [ ] **2.2** Image rendering — async image loading with draw callback
+- [x] **2.3** Background colors, borders, border-radius (rounded rects)
+- [x] **2.4** Box shadows and opacity
+- [x] **2.5** Clipping (overflow: hidden)
+- [ ] **2.6** Dirty-rect optimization — only redraw changed regions
+- [x] **2.7** HiDPI / devicePixelRatio support
 
 ### Phase 3: Event System
 > Enable interactivity.
 
-- **3.1** Hit testing — point-in-rect with tree traversal (z-order aware)
-- **3.2** Synthetic event system (onClick, onPointerDown, onPointerMove, etc.)
-- **3.3** Event bubbling and capturing (mirror DOM behavior)
-- **3.4** Focus management and keyboard events
-- **3.5** Scroll containers (virtual scrolling on canvas)
-- **3.6** Cursor management (pointer, text, etc.)
+- [x] **3.1** Hit testing — point-in-rect with tree traversal (z-order aware) *(scaffolded)*
+- [x] **3.2** Synthetic event system (onClick, onPointerDown, onPointerMove, etc.) *(scaffolded)*
+- [x] **3.3** Event dispatcher with bubbling *(scaffolded)*
+- [ ] **3.4** Focus management and keyboard events
+- [ ] **3.5** Scroll containers (virtual scrolling on canvas)
+- [ ] **3.6** Cursor management (pointer, text, etc.)
 
 ### Phase 4: Advanced Features
 > Production-readiness.
 
-- **4.1** Text input component (caret, selection, IME support)
-- **4.2** Animation system (spring-based or requestAnimationFrame integration)
-- **4.3** Accessibility shadow DOM (mirror tree to hidden DOM for screen readers)
-- **4.4** React DevTools integration (custom renderer hook)
-- **4.5** Server-side rendering with node-canvas
-- **4.6** Performance profiling and benchmarks vs DOM
+- [ ] **4.1** Text input component (caret, selection, IME support)
+- [ ] **4.2** Animation system (spring-based or requestAnimationFrame integration)
+- [ ] **4.3** Accessibility shadow DOM (mirror tree to hidden DOM for screen readers)
+- [ ] **4.4** React DevTools integration (custom renderer hook)
+- [ ] **4.5** Server-side rendering with node-canvas
+- [ ] **4.6** Performance profiling and benchmarks vs DOM
 
 ### Phase 5: AI Integration Layer
 > Make it AI-native.
 
-- **5.1** Schema definition for AI-friendly component API (JSON schema for LLM output)
-- **5.2** JSON-to-JSX bridge (AI outputs JSON → render to canvas)
-- **5.3** Streaming render support (partial trees render progressively)
-- **5.4** Visual diff tooling (compare two canvas renders pixel-by-pixel)
-- **5.5** Example: LLM-generated dashboard that renders entirely on canvas
-- **5.6** Documentation and examples for AI code generation workflows
+- [ ] **5.1** Schema definition for AI-friendly component API (JSON schema for LLM output)
+- [ ] **5.2** JSON-to-JSX bridge (AI outputs JSON → render to canvas)
+- [ ] **5.3** Streaming render support (partial trees render progressively)
+- [x] **5.4** Visual diff tooling (pixelmatch-based, integrated in E2E)
+- [ ] **5.5** Example: LLM-generated dashboard that renders entirely on canvas
+- [ ] **5.6** Documentation and examples for AI code generation workflows
 
 ### Phase 6: Ecosystem & Polish
 > Community adoption.
 
-- **6.1** Pre-built component library (Button, Input, ScrollView, List, etc.)
-- **6.2** Theming system (design tokens → canvas styles)
-- **6.3** Documentation site with live playground
-- **6.4** Performance benchmark suite (vs react-dom, react-konva, Flutter web)
-- **6.5** npm publish, GitHub repo, CI/CD pipeline
-- **6.6** Migration guide from react-dom
+- [ ] **6.1** Pre-built component library (Button, Input, ScrollView, List, etc.)
+- [ ] **6.2** Theming system (design tokens → canvas styles)
+- [ ] **6.3** Documentation site with live playground
+- [ ] **6.4** Performance benchmark suite (vs react-dom, react-konva, Flutter web)
+- [ ] **6.5** npm publish, GitHub repo, CI/CD pipeline
+- [ ] **6.6** Migration guide from react-dom
 
 ---
 
@@ -348,7 +359,7 @@ react-pxl/
 ## Success Metrics
 
 - **Phase 1 milestone**: Render a flexbox layout with 1000 nodes at 60fps
-- **Phase 2 milestone**: Render a UI that visually matches a react-dom equivalent
+- **Phase 2 milestone**: Render a UI that visually matches a react-dom equivalent ✅ **Achieved** (1.07% pixel diff)
 - **Phase 3 milestone**: Interactive todo app running entirely on canvas
 - **Phase 5 milestone**: LLM generates a complete dashboard UI from a text prompt, rendered on canvas
 - **Overall**: npm downloads, GitHub stars, community contributions
