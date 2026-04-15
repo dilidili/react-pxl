@@ -124,8 +124,8 @@ export class CanvasPipeline {
       this.ctx.globalAlpha *= style.opacity;
     }
 
-    // Clip if overflow hidden
-    const shouldClip = style.overflow === 'hidden';
+    // Clip if overflow hidden or scroll
+    const shouldClip = style.overflow === 'hidden' || style.overflow === 'scroll';
     if (shouldClip) {
       this.ctx.save();
       this.ctx.beginPath();
@@ -143,9 +143,22 @@ export class CanvasPipeline {
       drawRect(this.ctx, style, x, y, width, height);
     }
 
-    // Render children
+    // Apply scroll offset for children
+    const scrollX = node.scrollLeft ?? 0;
+    const scrollY = node.scrollTop ?? 0;
+    const childBaseX = x - scrollX;
+    const childBaseY = y - scrollY;
+
+    // Render children (with scroll-offset and viewport culling)
     for (const child of node.children) {
-      this.renderNode(child, x, y);
+      // Viewport culling for scroll containers: skip children entirely outside viewport
+      if (shouldClip) {
+        const childY = childBaseY + child.layout.y;
+        const childX = childBaseX + child.layout.x;
+        if (childY + child.layout.height < y || childY > y + height) continue;
+        if (childX + child.layout.width < x || childX > x + width) continue;
+      }
+      this.renderNode(child, childBaseX, childBaseY);
     }
 
     // Restore clip

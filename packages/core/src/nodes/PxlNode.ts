@@ -25,6 +25,10 @@ export class PxlNode implements PxlNodeBase {
   dirty = true;
   yogaNode: unknown = null;
 
+  /** Scroll offset for overflow:scroll containers */
+  scrollTop = 0;
+  scrollLeft = 0;
+
   constructor(props: PxlNodeProps = {}) {
     this.id = nextId++;
     this.props = props;

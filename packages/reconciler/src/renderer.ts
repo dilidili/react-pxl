@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { PxlNode } from '@react-pxl/core';
 import { YogaBridge } from '@react-pxl/layout';
 import { CanvasPipeline } from '@react-pxl/renderer';
+import { EventDispatcher } from '@react-pxl/events';
 import { hostConfig } from './hostConfig';
 
 const reconciler = Reconciler(hostConfig as any);
@@ -12,6 +13,7 @@ interface PxlRoot {
   rootNode: PxlNode;
   pipeline: CanvasPipeline;
   yoga: YogaBridge;
+  events: EventDispatcher;
 }
 
 const roots = new Map<HTMLCanvasElement, PxlRoot>();
@@ -67,11 +69,12 @@ export async function render(
       null
     );
 
-    root = { container, rootNode, pipeline, yoga };
+    root = { container, rootNode, pipeline, yoga, events: new EventDispatcher(canvas, rootNode) };
     roots.set(canvas, root);
 
     pipeline.setRootNode(rootNode);
     pipeline.start();
+    root.events.attach();
   }
 
   reconciler.updateContainerSync(element, root.container, null, callback ?? (() => {}));
@@ -83,6 +86,7 @@ export function unmount(canvas: HTMLCanvasElement): void {
   const root = roots.get(canvas);
   if (root) {
     reconciler.updateContainer(null, root.container, null, () => {});
+    root.events.detach();
     root.pipeline.stop();
     roots.delete(canvas);
   }

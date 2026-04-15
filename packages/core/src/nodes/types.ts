@@ -6,12 +6,23 @@ export type PxlEventHandler = (event: unknown) => void;
 
 export interface PxlNodeProps {
   style?: PxlStyle;
+  // Pointer events
   onClick?: PxlEventHandler;
   onPointerDown?: PxlEventHandler;
   onPointerUp?: PxlEventHandler;
   onPointerMove?: PxlEventHandler;
   onPointerEnter?: PxlEventHandler;
   onPointerLeave?: PxlEventHandler;
+  // Keyboard events
+  onKeyDown?: PxlEventHandler;
+  onKeyUp?: PxlEventHandler;
+  // Focus events
+  onFocus?: PxlEventHandler;
+  onBlur?: PxlEventHandler;
+  // Scroll events
+  onScroll?: PxlEventHandler;
+  // Focus control
+  tabIndex?: number;
   testID?: string;
 }
 

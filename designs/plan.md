@@ -227,26 +227,15 @@ The biggest barrier to canvas UI has always been the development cost — you mu
 - [x] **2.6** Dirty-rect optimization — union-rect clipping when ≤8 small dirty regions, full render fallback
 - [x] **2.7** HiDPI / devicePixelRatio support
 
-### Phase 3: Event System
+### Phase 3: Event System ✅ COMPLETE
 > Enable interactivity.
 
-- [x] **3.1** Hit testing — point-in-rect with tree traversal (z-order aware) *(scaffolded)*
-- [x] **3.2** Synthetic event system (onClick, onPointerDown, onPointerMove, etc.) *(scaffolded)*
-- [x] **3.3** Event dispatcher with bubbling *(scaffolded)*
-- [ ] **3.4** Focus management and keyboard events
-- [ ] **3.5** Scroll containers (virtual scrolling on canvas)
-  - `overflow: 'scroll'` triggers implicit virtualization — no new components or API
-  - Render-phase culling: skip drawing children outside scroll viewport
-  - Layout-phase caching: Yoga computes all positions, skip re-layout for unchanged off-screen nodes
-  - Reconcile-phase deferral: use `startTransition` to defer mounting off-screen children
-  - Scroll offset tracking via wheel/touch events on canvas
-  - Developer syntax stays identical to non-scrolling lists:
-    ```tsx
-    <div style={{ height: 600, overflow: 'scroll' }}>
-      {items.map(item => <Row key={item.id} {...item} />)}
-    </div>
-    ```
-- [ ] **3.6** Cursor management (pointer, text, etc.)
+- [x] **3.1** Hit testing — point-in-rect with tree traversal (z-order aware), scroll-offset aware
+- [x] **3.2** Synthetic event system (onClick, onPointerDown/Up/Move, onPointerEnter/Leave, onKeyDown/Up, onFocus/Blur, onScroll)
+- [x] **3.3** Event dispatcher with bubbling — wired into renderer, keyboard on window, wheel on canvas
+- [x] **3.4** Focus management — tabIndex, Tab/Shift+Tab navigation, focus/blur events, tree-order collection
+- [x] **3.5** Scroll containers — wheel events, scrollTop/scrollLeft offsets, content clamping, viewport culling in render pipeline
+- [x] **3.6** Cursor management — automatic pointer/text/default based on node type and handlers
 
 ### Phase 4: Advanced Features
 > Production-readiness.

@@ -26,6 +26,8 @@ function resolveProps(type: Type, props: Props): PxlNodeProps {
   // Clean up DOM-specific props that aren't PxlNode props
   delete (resolved as any).className;
   delete (resolved as any).children;
+  delete (resolved as any).ref;
+  delete (resolved as any).key;
   return resolved;
 }
 
