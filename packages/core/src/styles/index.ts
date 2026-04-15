@@ -13,3 +13,12 @@ export type {
   FontWeight,
   FontStyle,
 } from './styles';
+export {
+  ELEMENT_DEFAULTS,
+  TEXT_ELEMENTS,
+  TEXT_NODE_ELEMENTS,
+  IMAGE_ELEMENTS,
+  getElementDefaults,
+  mergeStyles,
+} from './elementDefaults';
+export { parseTailwind, clearTailwindCache } from './tailwind';
