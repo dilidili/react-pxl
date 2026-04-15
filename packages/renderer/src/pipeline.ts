@@ -1,5 +1,5 @@
 import type { PxlAnyNode } from '@react-pxl/core';
-import { resolveStyle } from '@react-pxl/core';
+import { resolveStyle, setTreeDirtyCallback } from '@react-pxl/core';
 import { drawRect } from './drawRect';
 import { drawText } from './drawText';
 import { drawImage } from './drawImage';
@@ -15,6 +15,7 @@ export class CanvasPipeline {
   private animFrameId: number | null = null;
   private rootNode: PxlAnyNode | null = null;
   private needsRender = true;
+  private dirtyRects: Array<{ x: number; y: number; w: number; h: number }> = [];
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -23,6 +24,9 @@ export class CanvasPipeline {
     this.ctx = ctx;
     this.dpr = window.devicePixelRatio || 1;
     this.setupHiDPI();
+
+    // Register global dirty callback so async operations (image loads) trigger re-render
+    setTreeDirtyCallback(() => this.markDirty());
   }
 
   private setupHiDPI(): void {
@@ -49,8 +53,11 @@ export class CanvasPipeline {
     this.markDirty();
   }
 
-  markDirty(): void {
+  markDirty(rect?: { x: number; y: number; w: number; h: number }): void {
     this.needsRender = true;
+    if (rect) {
+      this.dirtyRects.push(rect);
+    }
   }
 
   /** Start the render loop */
@@ -59,6 +66,7 @@ export class CanvasPipeline {
       if (this.needsRender && this.rootNode) {
         this.render(this.rootNode);
         this.needsRender = false;
+        this.dirtyRects = [];
       }
       this.animFrameId = requestAnimationFrame(loop);
     };
@@ -71,11 +79,33 @@ export class CanvasPipeline {
       cancelAnimationFrame(this.animFrameId);
       this.animFrameId = null;
     }
+    setTreeDirtyCallback(null);
   }
 
   /** Render the full tree immediately */
   render(rootNode: PxlAnyNode): void {
-    this.ctx.clearRect(0, 0, this.width, this.height);
+    const W = this.width;
+    const H = this.height;
+    const rects = this.dirtyRects;
+
+    // Use dirty-rect optimization when few small regions changed
+    if (rects.length > 0 && rects.length <= 8) {
+      const union = this.computeUnionRect(rects, W, H);
+      // Only optimize if the dirty area is less than 60% of total canvas
+      if (union.w * union.h < W * H * 0.6) {
+        this.ctx.save();
+        this.ctx.beginPath();
+        this.ctx.rect(union.x, union.y, union.w, union.h);
+        this.ctx.clip();
+        this.ctx.clearRect(union.x, union.y, union.w, union.h);
+        this.renderNode(rootNode, 0, 0);
+        this.ctx.restore();
+        return;
+      }
+    }
+
+    // Full render
+    this.ctx.clearRect(0, 0, W, H);
     this.renderNode(rootNode, 0, 0);
   }
 
@@ -108,7 +138,7 @@ export class CanvasPipeline {
       drawText(this.ctx, node as any, x, y, width, height);
     } else if (node.type === 'image') {
       drawRect(this.ctx, style, x, y, width, height);
-      drawImage(this.ctx, node as any, x, y, width, height);
+      drawImage(this.ctx, node as any, style, x, y, width, height);
     } else {
       drawRect(this.ctx, style, x, y, width, height);
     }
@@ -125,5 +155,26 @@ export class CanvasPipeline {
 
     // Restore opacity
     this.ctx.globalAlpha = prevAlpha;
+  }
+
+  /** Compute the bounding union of dirty rects, clamped to canvas */
+  private computeUnionRect(
+    rects: Array<{ x: number; y: number; w: number; h: number }>,
+    canvasW: number,
+    canvasH: number
+  ): { x: number; y: number; w: number; h: number } {
+    let minX = canvasW, minY = canvasH, maxX = 0, maxY = 0;
+    for (const r of rects) {
+      minX = Math.min(minX, r.x);
+      minY = Math.min(minY, r.y);
+      maxX = Math.max(maxX, r.x + r.w);
+      maxY = Math.max(maxY, r.y + r.h);
+    }
+    // Clamp to canvas bounds with 1px margin for anti-aliasing
+    minX = Math.max(0, Math.floor(minX) - 1);
+    minY = Math.max(0, Math.floor(minY) - 1);
+    maxX = Math.min(canvasW, Math.ceil(maxX) + 1);
+    maxY = Math.min(canvasH, Math.ceil(maxY) + 1);
+    return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
   }
 }

@@ -12,6 +12,11 @@ export class PxlImageNode extends PxlNode {
   private _image: HTMLImageElement | null = null;
   private _loaded = false;
   private _loading = false;
+  private _error = false;
+
+  /** Intrinsic dimensions once loaded */
+  naturalWidth = 0;
+  naturalHeight = 0;
 
   constructor(props: PxlImageProps) {
     super(props);
@@ -24,7 +29,10 @@ export class PxlImageNode extends PxlNode {
       this.src = newProps.src;
       this._loaded = false;
       this._loading = false;
+      this._error = false;
       this._image = null;
+      this.naturalWidth = 0;
+      this.naturalHeight = 0;
     }
     this.alt = newProps.alt ?? '';
     super.updateProps(newProps);
@@ -32,6 +40,10 @@ export class PxlImageNode extends PxlNode {
 
   get isLoaded(): boolean {
     return this._loaded;
+  }
+
+  get hasError(): boolean {
+    return this._error;
   }
 
   get image(): HTMLImageElement | null {
@@ -63,6 +75,7 @@ export class PxlImageNode extends PxlNode {
     }
 
     this._loading = true;
+    this._error = false;
     const img = new Image();
 
     return new Promise((resolve, reject) => {
@@ -70,13 +83,18 @@ export class PxlImageNode extends PxlNode {
         this._image = img;
         this._loaded = true;
         this._loading = false;
+        this.naturalWidth = img.naturalWidth;
+        this.naturalHeight = img.naturalHeight;
         this.markDirty();
         resolve(img);
       };
-      img.onerror = (err) => {
+      img.onerror = () => {
         this._loading = false;
+        this._error = true;
+        this.markDirty();
         reject(new Error(`Failed to load image: ${this.src}`));
       };
+      img.crossOrigin = 'anonymous';
       img.src = this.src;
     });
   }

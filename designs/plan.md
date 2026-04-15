@@ -216,15 +216,15 @@ The biggest barrier to canvas UI has always been the development cost — you mu
 - [x] `validate.sh` runner (UT + E2E), artifacts in `validation-results/`
 - [x] Current result: **1.07% pixel diff** (well within 5% tolerance)
 
-### Phase 2: Rendering Pipeline — Text, Images, Styling 🔄 IN PROGRESS
+### Phase 2: Rendering Pipeline — Text, Images, Styling ✅ COMPLETE
 > Make it visually useful.
 
 - [x] **2.1** Text rendering — word wrapping, font string, measurement for Yoga, alignment
-- [ ] **2.2** Image rendering — async image loading with draw callback
+- [x] **2.2** Image rendering — async loading, object-fit (fill/contain/cover/none/scale-down), intrinsic sizing, error placeholders, re-render on load
 - [x] **2.3** Background colors, borders, border-radius (rounded rects)
 - [x] **2.4** Box shadows and opacity
 - [x] **2.5** Clipping (overflow: hidden)
-- [ ] **2.6** Dirty-rect optimization — only redraw changed regions
+- [x] **2.6** Dirty-rect optimization — union-rect clipping when ≤8 small dirty regions, full render fallback
 - [x] **2.7** HiDPI / devicePixelRatio support
 
 ### Phase 3: Event System

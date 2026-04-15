@@ -3,6 +3,14 @@ import type { ComputedLayout, PxlStyle } from '../styles';
 
 let nextId = 1;
 
+/** Global callback invoked when any node's dirty flag propagates to a root */
+let onTreeDirtyCallback: (() => void) | null = null;
+
+/** Register a callback for when any node tree becomes dirty (used by pipeline) */
+export function setTreeDirtyCallback(cb: (() => void) | null): void {
+  onTreeDirtyCallback = cb;
+}
+
 /**
  * PxlNode represents a "View" element in the canvas tree.
  * Equivalent to a <div> in DOM — a container with layout and visual styles.
@@ -61,6 +69,9 @@ export class PxlNode implements PxlNodeBase {
     this.dirty = true;
     if (this.parent && !this.parent.dirty) {
       this.parent.markDirty();
+    } else if (!this.parent && onTreeDirtyCallback) {
+      // Reached root — notify pipeline
+      onTreeDirtyCallback();
     }
   }
 

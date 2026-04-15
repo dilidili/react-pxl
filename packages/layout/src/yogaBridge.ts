@@ -234,6 +234,34 @@ export class YogaBridge {
       );
     }
 
+    // Image leaf nodes: use intrinsic aspect ratio for sizing
+    if (node.type === 'image' && node.children.length === 0) {
+      const imgNode = node as any; // PxlImageNode
+      if (imgNode.naturalWidth > 0 && imgNode.naturalHeight > 0) {
+        const nw = imgNode.naturalWidth;
+        const nh = imgNode.naturalHeight;
+        const style = node.props.style ?? {};
+        // Only set measure func if no explicit dimensions provided
+        if (style.width === undefined || style.height === undefined) {
+          yogaNode.setMeasureFunc(
+            (width: number, widthMode: number, height: number, heightMode: number) => {
+              const aspect = nw / nh;
+              if (widthMode !== 0 && heightMode !== 0) {
+                // Both constrained: fit within
+                const scale = Math.min(width / nw, height / nh);
+                return { width: nw * scale, height: nh * scale };
+              } else if (widthMode !== 0) {
+                return { width, height: width / aspect };
+              } else if (heightMode !== 0) {
+                return { width: height * aspect, height };
+              }
+              return { width: nw, height: nh };
+            }
+          );
+        }
+      }
+    }
+
     for (let i = 0; i < node.children.length; i++) {
       this.buildNodeRecursive(node.children[i], yogaNode, i);
     }

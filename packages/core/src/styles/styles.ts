@@ -15,6 +15,7 @@ export type Display = 'flex' | 'none';
 export type TextAlign = 'left' | 'center' | 'right';
 export type FontWeight = 'normal' | 'bold' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900';
 export type FontStyle = 'normal' | 'italic';
+export type ObjectFit = 'fill' | 'contain' | 'cover' | 'none' | 'scale-down';
 
 export interface PxlStyle {
   // Layout (Yoga)
@@ -98,6 +99,9 @@ export interface PxlStyle {
   lineHeight?: number;
   textAlign?: TextAlign;
   letterSpacing?: number;
+
+  // Image
+  objectFit?: ObjectFit;
 }
 
 /** Computed layout output from Yoga */

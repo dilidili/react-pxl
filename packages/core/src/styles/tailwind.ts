@@ -136,6 +136,13 @@ function parseToken(token: string): PxlStyle | null {
   if (token === 'overflow-scroll') return { overflow: 'scroll' };
   if (token === 'overflow-visible') return { overflow: 'visible' };
 
+  // --- Object-fit ---
+  if (token === 'object-fill') return { objectFit: 'fill' };
+  if (token === 'object-contain') return { objectFit: 'contain' };
+  if (token === 'object-cover') return { objectFit: 'cover' };
+  if (token === 'object-none') return { objectFit: 'none' };
+  if (token === 'object-scale-down') return { objectFit: 'scale-down' };
+
   // --- Spacing: padding ---
   let m: RegExpMatchArray | null;
 

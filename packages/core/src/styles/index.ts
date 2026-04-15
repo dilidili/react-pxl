@@ -12,6 +12,7 @@ export type {
   TextAlign,
   FontWeight,
   FontStyle,
+  ObjectFit,
 } from './styles';
 export {
   ELEMENT_DEFAULTS,
