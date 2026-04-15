@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "composite": true,
+    "paths": {
+      "@react-pxl/core": ["./packages/core/src"],
+      "@react-pxl/reconciler": ["./packages/reconciler/src"],
+      "@react-pxl/layout": ["./packages/layout/src"],
+      "@react-pxl/renderer": ["./packages/renderer/src"],
+      "@react-pxl/events": ["./packages/events/src"],
+      "@react-pxl/components": ["./packages/components/src"],
+      "@react-pxl/ai-bridge": ["./packages/ai-bridge/src"]
+    }
+  },
+  "include": [],
+  "references": [
+    { "path": "./packages/core" },
+    { "path": "./packages/reconciler" },
+    { "path": "./packages/layout" },
+    { "path": "./packages/renderer" },
+    { "path": "./packages/events" },
+    { "path": "./packages/components" },
+    { "path": "./packages/ai-bridge" }
+  ]
+}

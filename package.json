@@ -1,0 +1,36 @@
+{
+  "name": "react-pxl",
+  "version": "0.0.1",
+  "private": true,
+  "description": "React → Canvas. Declarative UI, pixel-perfect rendering.",
+  "keywords": [
+    "react",
+    "canvas",
+    "renderer",
+    "ui",
+    "pixel"
+  ],
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dev": "npm run dev --workspace=apps/playground",
+    "lint": "eslint packages/ --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "eslint": "^9.0.0",
+    "jsdom": "^29.0.2",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

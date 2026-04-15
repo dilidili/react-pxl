@@ -1,0 +1,23 @@
+{
+  "name": "@react-pxl/playground",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Development playground for react-pxl",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@react-pxl/core": "*",
+    "@react-pxl/reconciler": "*",
+    "@react-pxl/layout": "*",
+    "@react-pxl/renderer": "*",
+    "@react-pxl/events": "*",
+    "@react-pxl/components": "*",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.0",
+    "vite": "^6.0.0"
+  }
+}

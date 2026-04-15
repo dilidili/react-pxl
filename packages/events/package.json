@@ -1,0 +1,11 @@
+{
+  "name": "@react-pxl/events",
+  "version": "0.0.1",
+  "description": "Event system for react-pxl (hit testing, synthetic events)",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@react-pxl/core": "*"
+  }
+}
