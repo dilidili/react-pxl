@@ -19,7 +19,7 @@ import './hero.css'
 </p>
 
 <div className="hero-actions">
-  <a href="/docs/getting-started" className="hero-btn-primary">
+  <a href="/docs/getting-started/" className="hero-btn-primary">
     Get Started →
   </a>
   <a href="https://github.com/dilidili/react-pxl" className="hero-btn-secondary">
@@ -32,7 +32,7 @@ import './hero.css'
   <code>npm install react-pxl</code>
 </div>
 
-{/* ── Side-by-side comparison ── */}
+{/* ── Side-by-side live comparison ── */}
 <div className="compare-section">
   <div className="compare-label">
     <span className="active">Canvas (react-pxl)</span>
@@ -40,11 +40,11 @@ import './hero.css'
   </div>
   <div className="compare-grid">
     <div className="compare-card">
-      <img src="/screenshots/profile-pxl.png" width="380" height="460" alt="Canvas output" />
+      <iframe src="/demos/profile-pxl.html" title="Canvas render" className="compare-iframe" />
       <div className="compare-card-label canvas">⬡ Canvas — Single &lt;canvas&gt; element</div>
     </div>
     <div className="compare-card">
-      <img src="/screenshots/profile-dom.png" width="380" height="460" alt="DOM output" />
+      <iframe src="/demos/profile-dom.html" title="DOM render" className="compare-iframe" />
       <div className="compare-card-label dom">◇ DOM — Standard react-dom render</div>
     </div>
   </div>
@@ -92,11 +92,11 @@ import './hero.css'
 <div className="scroll-section">
   <div className="scroll-section-title">Scrollable Lists, on Canvas</div>
   <p className="scroll-section-sub">
-    200 items in a scrollable container. Plain React list rendering — no virtualization needed.
+    200 items in a scrollable container. Plain React list rendering — no virtualization needed. Try scrolling it!
   </p>
   <div className="scroll-demo-wrapper">
     <div className="scroll-demo-card">
-      <img src="/screenshots/scroll.png" width="420" height="520" alt="Scroll demo" />
+      <iframe src="/demos/scroll.html" title="Scroll demo" className="scroll-iframe" />
     </div>
   </div>
 </div>
@@ -129,7 +129,7 @@ render(<App />, canvas)
   <div className="footer-cta-title">Ready to render?</div>
   <p className="footer-cta-sub">Get started in under a minute.</p>
   <div className="hero-actions">
-    <a href="/docs/getting-started" className="hero-btn-primary">
+    <a href="/docs/getting-started/" className="hero-btn-primary">
       Read the Docs →
     </a>
   </div>

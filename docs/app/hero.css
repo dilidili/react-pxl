@@ -239,6 +239,14 @@
   display: block;
 }
 
+.compare-iframe {
+  width: 380px;
+  height: 460px;
+  border: none;
+  display: block;
+  background: #ffffff;
+}
+
 .compare-card-label {
   padding: 10px 16px;
   font-size: 12px;
@@ -363,6 +371,14 @@
 
 .scroll-demo-card img {
   display: block;
+}
+
+.scroll-iframe {
+  width: 420px;
+  height: 520px;
+  border: none;
+  display: block;
+  background: #ffffff;
 }
 
 /* ── Code Section ────────────────────────────── */
