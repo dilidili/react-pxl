@@ -149,6 +149,58 @@ Scroll offset tracked via wheel/touch events on the canvas element:
 | First paint for 10K items | ~5ms (windowed) | ~5ms (windowed) | **~2ms** (visible only) |
 | Cross-browser consistency | Varies | Varies | **Identical** (Canvas) |
 
+## Validation Criteria
+
+A "before/after diff" only proves pixels changed — trivially true for any scroll. The real criteria for infinite list correctness are:
+
+### 1. Content Correctness (per-scroll-position snapshot)
+
+Render the same list items with react-dom at a known scroll offset. Compare against react-pxl canvas at the same scroll offset. The visible items must match.
+
+```
+Scroll to item[50] → screenshot react-dom viewport → screenshot react-pxl viewport → pixelmatch
+```
+
+This validates that the **right items** appear at the **right positions** after scroll — not just that something changed.
+
+### 2. Item Order & Continuity
+
+After scrolling N pixels, the first visible item should be deterministic. Verify by reading text content from the canvas (via test fixture data) or by comparing against a known-good reference.
+
+```
+scroll(500px) → first visible item should be item[K]
+scroll(500px) more → first visible item should be item[K + M]
+no gaps, no duplicates, no items out of order
+```
+
+### 3. Round-Trip Stability
+
+Scroll down, then scroll back to the original position. The canvas output must be pixel-identical to the initial render. This catches:
+- State leaks from virtualization
+- Layout drift from cumulative rounding errors
+- Missing items after recycling
+
+```
+screenshot(scrollTop=0) → scroll down 5000px → scroll back to 0 → screenshot → pixelmatch = 0
+```
+
+### 4. Performance Budget
+
+For a 10K-item list, frame time must stay under budget during scroll:
+
+| Metric | Target |
+|--------|--------|
+| First paint (visible items) | < 16ms |
+| Scroll frame time | < 16ms (60fps) |
+| Memory per item | < 1KB (PxlNode overhead) |
+
+### 5. Visual Fidelity at Scroll Boundaries
+
+Edge cases to validate:
+- Partially visible items at top/bottom edges render correctly (not clipped wrong)
+- First item and last item are reachable and fully visible at min/max scroll
+- Content height matches expected total (no collapsed or missing space)
+
 ## Non-Goals
 
 - **Explicit virtualization API**: No `<VirtualList>` or `<InfiniteScroll>` component. The optimization is implicit.
