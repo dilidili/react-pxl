@@ -311,10 +311,7 @@ react-pxl/
 │   │   ├── src/
 │   │   │   ├── View.tsx
 │   │   │   ├── Text.tsx
-│   │   │   ├── Image.tsx
-│   │   │   ├── Button.tsx
-│   │   │   ├── TextInput.tsx
-│   │   │   └── ScrollView.tsx
+│   │   │   └── Image.tsx
 │   │   └── package.json
 │   └── ai-bridge/             # AI integration utilities
 │       ├── src/

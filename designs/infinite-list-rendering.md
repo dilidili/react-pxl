@@ -61,7 +61,7 @@ container┼─ buffer (mount sync, skip draw) ──── ~20 items
          └─ off-screen (defer mount via idle) ── rest
 ```
 
-### Layer 1: Render-Phase Culling (pipeline.ts)
+### Layer 1: Render-Phase Culling (pipeline.ts) ✅ IMPLEMENTED
 
 Skip drawing children outside the scroll viewport. This is the simplest and highest-impact optimization.
 
@@ -74,17 +74,21 @@ renderNode(node, parentX, parentY):
 
 **Impact**: Reduces draw calls from O(n) to O(visible). A 10K-item list only draws ~50 items per frame.
 
-### Layer 2: Layout-Phase Caching (yogaBridge.ts)
+**Status**: Implemented in `pipeline.ts` lines 157–163. Viewport culling skips children entirely outside the scroll container bounds.
 
-Yoga computes positions for all mounted children, but we cache results and skip re-layout for unchanged off-screen nodes.
+### Layer 2: Layout-Phase Caching (yogaBridge.ts) — NOT YET IMPLEMENTED
+
+Yoga computes positions for all mounted children, but we could cache results and skip re-layout for unchanged off-screen nodes.
 
 - On initial mount: full Yoga layout pass (positions all items)
 - On subsequent frames: only re-layout dirty nodes
 - Off-screen nodes retain cached `{ x, y, width, height }` from previous computation
 
-**Impact**: Reduces layout cost on scroll from O(n) to O(changed).
+**Impact**: Would reduce layout cost on scroll from O(n) to O(changed).
 
-### Layer 3: Reconcile-Phase Deferral (hostConfig.ts)
+**Status**: Not yet implemented. Currently all items run through Yoga on each layout pass.
+
+### Layer 3: Reconcile-Phase Deferral (hostConfig.ts) — NOT YET IMPLEMENTED
 
 Use React's `startTransition` to defer mounting off-screen children:
 
@@ -92,7 +96,9 @@ Use React's `startTransition` to defer mounting off-screen children:
 - Off-screen items: mount in idle frames via `startTransition`
 - On scroll into deferred region: already-mounted items draw instantly
 
-**Impact**: First paint renders only visible items (~2ms), remaining items fill in during idle time.
+**Impact**: Would reduce first paint to only visible items.
+
+**Status**: Not yet implemented. Currently all items are mounted synchronously by React's reconciler.
 
 ## Reconciliation at Scale
 
@@ -104,7 +110,9 @@ React's reconciler is the bottleneck for very large lists since it does O(n) wor
 | 10K | ~15-20ms | ~3ms | skippable (culling) |
 | 100K | ~150ms+ | ~30ms | skippable (culling) |
 
-### Mitigation: Progressive Mounting
+### Mitigation: Progressive Mounting (PLANNED)
+
+> **Note:** Not yet implemented. This describes the target design for Layer 3.
 
 For containers with `overflow: 'scroll'` and large child counts:
 
@@ -146,7 +154,7 @@ Scroll offset tracked via wheel/touch events on the canvas element:
 | Variable height items | Limited | CellMeasurer hack | **Automatic** |
 | Nested scroll containers | Difficult | Difficult | **Natural** (Canvas clipping) |
 | Memory per item | DOM node + styles | DOM node + styles | **PxlNode (~10 props)** |
-| First paint for 10K items | ~5ms (windowed) | ~5ms (windowed) | **~2ms** (visible only) |
+| First paint for 10K items | ~5ms (windowed) | ~5ms (windowed) | **~340ms** (all items mounted; Layer 3 would reduce to ~5ms) |
 | Cross-browser consistency | Varies | Varies | **Identical** (Canvas) |
 
 ## Validation Criteria

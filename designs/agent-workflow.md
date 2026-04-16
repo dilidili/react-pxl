@@ -1,7 +1,10 @@
 # Agent Workflow: Code Generator + Validator
 
-> **Goal**: After the code generator agent makes changes, a validator agent (low-cost model)
-> automatically runs UT + E2E tests, persists results for human review.
+> **Goal**: After the code generator agent makes changes, run validation to verify correctness.
+
+## Current State
+
+The validator workflow is **manual** — run via `scripts/validate.sh`. The planned automated validator agent (low-cost model triggered on each code change) is not yet implemented.
 
 ## Workflow Overview
 
