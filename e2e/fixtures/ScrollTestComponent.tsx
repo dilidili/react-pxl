@@ -2,11 +2,11 @@ import React from 'react';
 
 /**
  * Scroll test component: a fixed-height container with overflow:scroll
- * containing items that exceed the viewport. Used to verify scroll
- * behavior in the canvas renderer.
+ * containing many items for infinite list validation.
+ * Item count is configurable via window.__SCROLL_TEST_ITEM_COUNT (default 1000).
  */
-export function ScrollTestComponent() {
-  const items = Array.from({ length: 20 }, (_, i) => i);
+export function ScrollTestComponent({ itemCount = 1000 }: { itemCount?: number }) {
+  const items = Array.from({ length: itemCount }, (_, i) => i);
 
   return (
     <div style={{
@@ -20,7 +20,7 @@ export function ScrollTestComponent() {
       fontFamily: 'Arial, sans-serif',
     }}>
       <h1 style={{ fontSize: 22, fontWeight: 'bold', color: '#1e293b', margin: 0 }}>
-        Scroll Test
+        Scroll Test ({itemCount} items)
       </h1>
 
       {/* Scrollable container */}
@@ -37,6 +37,7 @@ export function ScrollTestComponent() {
         {items.map(i => (
           <div
             key={i}
+            data-index={i}
             style={{
               display: 'flex',
               flexDirection: 'row',
