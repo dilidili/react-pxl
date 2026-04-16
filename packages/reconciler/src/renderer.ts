@@ -81,6 +81,11 @@ export async function render(
   reconciler.flushSyncWork();
 }
 
+/** Get the root PxlNode for a canvas (for debugging/testing) */
+export function getRootNode(canvas: HTMLCanvasElement): PxlNode | null {
+  return roots.get(canvas)?.rootNode ?? null;
+}
+
 /** Unmount the React tree from a canvas */
 export function unmount(canvas: HTMLCanvasElement): void {
   const root = roots.get(canvas);

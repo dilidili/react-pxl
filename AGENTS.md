@@ -30,7 +30,17 @@ npm run dev                       # vite playground (apps/playground/)
 ./scripts/validate.sh             # full validation: UT + E2E visual diff
 ./scripts/validate.sh --ut        # unit tests only
 ./scripts/validate.sh --e2e       # E2E only (needs LD_LIBRARY_PATH=~/lib)
+./scripts/setup-hooks.sh          # install git pre-push hook (run once)
 ```
+
+## Pre-Push Validation
+
+A git `pre-push` hook runs the full validation suite automatically before every push.
+Results are saved to `validation-results/` (gitignored, persisted locally for review).
+
+- **Install**: `./scripts/setup-hooks.sh` (once after clone)
+- **Bypass**: `git push --no-verify` (emergencies only)
+- **Reports**: `validation-results/report.json`, `validation-results/e2e-output.txt`, etc.
 
 ## Conventions
 
