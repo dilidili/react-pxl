@@ -54,16 +54,40 @@ test.describe('Infinite list: scroll performance & correctness', () => {
     const avgFrameTime = frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length;
     const maxFrameTime = Math.max(...frameTimes);
 
+    // Save report with full metrics for regression tracking
+    const sorted = [...frameTimes].sort((a, b) => a - b);
+    const p99FrameTime = sorted[Math.floor(sorted.length * 0.99)] ?? 0;
+    const fps = frameTimes.length > 0 ? Math.round(1000 / avgFrameTime) : 0;
+
+    const report = {
+      timestamp: new Date().toISOString(),
+      itemCount: 1000,
+      dynamicHeights: true,
+      seed: 12345,
+      metrics: {
+        fps,
+        avgFrameTimeMs: +avgFrameTime.toFixed(2),
+        maxFrameTimeMs: +maxFrameTime.toFixed(2),
+        p99FrameTimeMs: +p99FrameTime.toFixed(2),
+        totalFrames: frameTimes.length,
+        droppedFrames: droppedFrames.length,
+        dropRate: +(droppedFrames.length / frameTimes.length).toFixed(4),
+      },
+      frameTimes,
+    };
+
     console.log(`\n⏱  Frame Budget Report:`);
+    console.log(`   FPS: ${fps}`);
     console.log(`   Total frames: ${frameTimes.length}`);
     console.log(`   Avg frame time: ${avgFrameTime.toFixed(2)}ms`);
+    console.log(`   P99 frame time: ${p99FrameTime.toFixed(2)}ms`);
     console.log(`   Max frame time: ${maxFrameTime.toFixed(2)}ms`);
     console.log(`   Dropped frames (>16ms): ${droppedFrames.length}`);
 
-    // Save report
+    // Save detailed metrics for regression tracking
     fs.writeFileSync(
-      path.join(RESULTS_DIR, 'scroll-frame-times.json'),
-      JSON.stringify({ frameTimes, avgFrameTime, maxFrameTime, droppedFrames: droppedFrames.length }, null, 2)
+      path.join(RESULTS_DIR, 'scroll-perf-metrics.json'),
+      JSON.stringify(report, null, 2)
     );
 
     // Allow dropped frames — headless environments have scheduling variance.

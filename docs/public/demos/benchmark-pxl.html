@@ -3,18 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scroll demo</title>
+  <title>react-pxl benchmark — 1000 items, dynamic heights</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; overflow: hidden; }
     body { display: flex; justify-content: center; align-items: center; background: transparent; }
     canvas { display: block; }
   </style>
-  <script type="module" crossorigin src="/demos/assets/scroll-DCGYUmUa.js"></script>
+  <script type="module" crossorigin src="/demos/assets/benchmark-pxl-BbnSbPjw.js"></script>
   <link rel="modulepreload" crossorigin href="/demos/assets/jsx-runtime-DViL40Wu.js">
   <link rel="modulepreload" crossorigin href="/demos/assets/renderer-BjzG-F9m.js">
+  <link rel="modulepreload" crossorigin href="/demos/assets/fps-meter-CcmtwBZF.js">
 </head>
 <body>
   <canvas id="root" width="420" height="520" style="width: 420px; height: 520px;"></canvas>
+  <div id="fps-overlay"></div>
 </body>
 </html>

@@ -1,1 +1,0 @@
-import{n as e,t}from"./jsx-runtime-C5xW-1km.js";import{t as n}from"./renderer-lMfkTlZ9.js";import{t as r}from"./ProfileCard-bzMzuCz5.js";e();var i=t(),a=document.getElementById(`root`);n((0,i.jsx)(r,{}),a);
