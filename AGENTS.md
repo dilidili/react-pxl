@@ -12,6 +12,7 @@ See [`designs/`](./designs/) for architecture docs, execution plans, and roadmap
 | [`designs/plan.md`](./designs/plan.md) | Project plan, architecture, phased roadmap, progress |
 | [`designs/execution-dom-compat.md`](./designs/execution-dom-compat.md) | DOM-compatible JSX + Tailwind utility classes |
 | [`designs/agent-workflow.md`](./designs/agent-workflow.md) | Code generator → validator agent pipeline |
+| [`designs/scroll-motion.md`](./designs/scroll-motion.md) | Scroll system: pointer-drag, momentum, smooth animation |
 
 ## Architecture
 
@@ -40,3 +41,4 @@ npm run dev                       # vite playground (apps/playground/)
 - **Style merge order** — elementDefaults ← className ← inline style
 - **Tests** — colocated in `__tests__/` dirs, vitest + Playwright E2E
 - **No DOM deps** in core/layout/renderer — canvas-only
+- **Design docs required** — any new important component, subsystem, or architectural change must have a design doc in `designs/` before implementation. Update the AGENTS.md table to reference it.

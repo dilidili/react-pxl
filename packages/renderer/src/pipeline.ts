@@ -110,6 +110,9 @@ export class CanvasPipeline {
   }
 
   private renderNode(node: PxlAnyNode, parentX: number, parentY: number): void {
+    // Clear dirty flag so future markDirty() calls propagate correctly
+    node.dirty = false;
+
     const x = parentX + node.layout.x;
     const y = parentY + node.layout.y;
     const { width, height } = node.layout;

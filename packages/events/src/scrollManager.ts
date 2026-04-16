@@ -1,11 +1,17 @@
 import type { PxlAnyNode } from '@react-pxl/core';
 import { PxlSyntheticEvent } from './synthetic';
+import { animate, decay } from 'popmotion';
+import type { PlaybackControls } from 'popmotion';
 
 /**
  * Manages scroll state for overflow:scroll containers.
- * Handles wheel events and clamps scroll offsets to content bounds.
+ * Handles wheel events, pointer-drag scrolling, and momentum/spring animations.
  */
 export class ScrollManager {
+  private animations = new WeakMap<PxlAnyNode, PlaybackControls>();
+  /** Accumulated wheel target for smooth spring animation */
+  private wheelTargets = new WeakMap<PxlAnyNode, number>();
+
   /**
    * Find the nearest scrollable ancestor of a node (including itself).
    * A node is scrollable if its style.overflow is 'scroll' or 'auto'.
@@ -21,7 +27,7 @@ export class ScrollManager {
   }
 
   /**
-   * Apply a scroll delta to a scroll container.
+   * Apply a scroll delta to a scroll container immediately.
    * Clamps scroll offsets to valid range based on content size vs viewport.
    * Returns true if scroll position actually changed.
    */
@@ -59,6 +65,115 @@ export class ScrollManager {
     }
 
     return changed;
+  }
+
+  /**
+   * Animate scroll to a specific target offset using spring physics.
+   * Used by wheel scroll for smooth animation.
+   */
+  animateTo(container: PxlAnyNode, targetY: number): void {
+    this.cancelAnimation(container);
+
+    const maxScrollY = Math.max(0, this.getContentHeight(container) - container.layout.height);
+    const clampedTarget = Math.max(0, Math.min(maxScrollY, targetY));
+
+    const anim = animate({
+      from: container.scrollTop,
+      to: clampedTarget,
+      type: 'spring',
+      stiffness: 300,
+      damping: 30,
+      restDelta: 0.5,
+      onUpdate: (v: number) => {
+        const prev = container.scrollTop;
+        container.scrollTop = Math.max(0, Math.min(maxScrollY, v));
+        if (container.scrollTop !== prev) {
+          container.markDirty();
+        }
+      },
+      onComplete: () => {
+        this.animations.delete(container);
+      },
+    });
+
+    this.animations.set(container, anim);
+  }
+
+  /**
+   * Fling scroll with initial velocity using decay physics.
+   * Called on pointer-drag release for momentum scrolling.
+   */
+  fling(container: PxlAnyNode, velocityY: number): void {
+    if (Math.abs(velocityY) < 50) return; // ignore tiny velocities
+    this.cancelAnimation(container);
+
+    const maxScrollY = Math.max(0, this.getContentHeight(container) - container.layout.height);
+
+    const anim = decay({
+      from: container.scrollTop,
+      velocity: velocityY,
+      power: 0.8,
+      timeConstant: 350,
+      restDelta: 0.5,
+      onUpdate: (v: number) => {
+        const clamped = Math.max(0, Math.min(maxScrollY, v));
+        if (clamped !== container.scrollTop) {
+          container.scrollTop = clamped;
+          container.markDirty();
+        }
+        // Stop if we hit bounds
+        if (clamped <= 0 || clamped >= maxScrollY) {
+          const currentAnim = this.animations.get(container);
+          if (currentAnim) currentAnim.stop();
+          this.animations.delete(container);
+        }
+      },
+      onComplete: () => {
+        this.animations.delete(container);
+      },
+    });
+
+    this.animations.set(container, anim);
+  }
+
+  /**
+   * Handle wheel event with smooth spring animation.
+   * Accumulates wheel deltas into a target and animates toward it.
+   */
+  smoothWheel(container: PxlAnyNode, deltaY: number, nativeEvent?: Event): void {
+    // Accumulate target
+    const currentTarget = this.wheelTargets.get(container) ?? container.scrollTop;
+    const newTarget = currentTarget + deltaY;
+    this.wheelTargets.set(container, newTarget);
+
+    this.animateTo(container, newTarget);
+
+    // Fire onScroll handler
+    const handler = (container.props as any).onScroll;
+    if (handler) {
+      handler(new PxlSyntheticEvent({
+        type: 'onScroll',
+        target: container,
+        currentTarget: container,
+        clientX: 0, clientY: 0,
+        canvasX: 0, canvasY: 0,
+        nativeEvent: nativeEvent ?? new Event('scroll'),
+      }));
+    }
+  }
+
+  /** Reset wheel target tracking (call when drag starts or scroll position is set externally) */
+  resetWheelTarget(container: PxlAnyNode): void {
+    this.wheelTargets.set(container, container.scrollTop);
+  }
+
+  /** Cancel any active animation on a container */
+  cancelAnimation(container: PxlAnyNode): void {
+    const anim = this.animations.get(container);
+    if (anim) {
+      anim.stop();
+      this.animations.delete(container);
+    }
   }
 
   /** Get total content height (sum of children layout heights + gaps) */

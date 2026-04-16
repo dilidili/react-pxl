@@ -15,6 +15,22 @@ const domToReactEventMap: Record<string, PointerEventName> = {
   pointermove: 'onPointerMove',
 };
 
+/** Velocity sample for drag tracking */
+interface VelocitySample {
+  time: number;
+  y: number;
+  x: number;
+}
+
+/** State for pointer-drag scrolling */
+interface DragState {
+  scrollContainer: PxlAnyNode;
+  startY: number;
+  startX: number;
+  samples: VelocitySample[];
+  moved: boolean;
+}
+
 /**
  * EventDispatcher bridges browser DOM events to the PxlNode event system.
  * Handles pointer events, keyboard events, focus management, scrolling, and cursor.
@@ -28,6 +44,7 @@ export class EventDispatcher {
   readonly cursor: CursorManager;
   private hoveredNode: PxlAnyNode | null = null;
   private listeners: Array<{ target: EventTarget; event: string; handler: (e: Event) => void }> = [];
+  private dragState: DragState | null = null;
 
   constructor(canvas: HTMLCanvasElement, rootNode: PxlAnyNode) {
     this.canvas = canvas;
@@ -45,6 +62,11 @@ export class EventDispatcher {
       this.listeners.push({ target: this.canvas, event, handler });
     }
 
+    // Pointer leave (for drag cancel when leaving canvas)
+    const pointerLeaveHandler = (e: Event) => this.handlePointerLeaveCanvas(e as PointerEvent);
+    this.canvas.addEventListener('pointerleave', pointerLeaveHandler);
+    this.listeners.push({ target: this.canvas, event: 'pointerleave', handler: pointerLeaveHandler });
+
     // Wheel events on canvas (for scroll containers)
     const wheelHandler = (e: Event) => this.handleWheelEvent(e as WheelEvent);
     this.canvas.addEventListener('wheel', wheelHandler, { passive: false });
@@ -58,6 +80,17 @@ export class EventDispatcher {
     this.listeners.push({ target: window, event: 'keydown', handler: keydownHandler });
     this.listeners.push({ target: window, event: 'keyup', handler: keyupHandler });
 
+    // Touch events for scroll (mobile and iframe support)
+    const touchStartHandler = (e: Event) => this.handleTouchStart(e as TouchEvent);
+    const touchMoveHandler = (e: Event) => this.handleTouchMove(e as TouchEvent);
+    const touchEndHandler = (e: Event) => this.handleTouchEnd(e as TouchEvent);
+    this.canvas.addEventListener('touchstart', touchStartHandler, { passive: false });
+    this.canvas.addEventListener('touchmove', touchMoveHandler, { passive: false });
+    this.canvas.addEventListener('touchend', touchEndHandler, { passive: false });
+    this.listeners.push({ target: this.canvas, event: 'touchstart', handler: touchStartHandler });
+    this.listeners.push({ target: this.canvas, event: 'touchmove', handler: touchMoveHandler });
+    this.listeners.push({ target: this.canvas, event: 'touchend', handler: touchEndHandler });
+
     // Make canvas focusable so it can receive keyboard events
     if (!this.canvas.getAttribute('tabindex')) {
       this.canvas.setAttribute('tabindex', '0');
@@ -70,6 +103,7 @@ export class EventDispatcher {
       target.removeEventListener(event, handler);
     }
     this.listeners = [];
+    this.dragState = null;
     this.cursor.reset();
     this.focus.setFocus(null);
   }
@@ -86,9 +120,64 @@ export class EventDispatcher {
     };
   }
 
+  private getTouchCanvasCoords(touch: Touch): { canvasX: number; canvasY: number } {
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      canvasX: touch.clientX - rect.left,
+      canvasY: touch.clientY - rect.top,
+    };
+  }
+
   private handlePointerEvent(domEvent: PointerEvent, eventType: string): void {
     const { canvasX, canvasY } = this.getCanvasCoords(domEvent);
     const hitNode = this.hitTester.hitTest(this.rootNode, canvasX, canvasY);
+
+    // --- Drag scroll handling ---
+    if (eventType === 'pointerdown' && hitNode) {
+      const scrollContainer = this.scroll.findScrollContainer(hitNode);
+      if (scrollContainer) {
+        this.scroll.cancelAnimation(scrollContainer);
+        this.scroll.resetWheelTarget(scrollContainer);
+        this.dragState = {
+          scrollContainer,
+          startY: canvasY,
+          startX: canvasX,
+          samples: [{ time: Date.now(), y: canvasY, x: canvasX }],
+          moved: false,
+        };
+        this.canvas.setPointerCapture(domEvent.pointerId);
+      }
+    }
+
+    if (eventType === 'pointermove' && this.dragState) {
+      const dy = this.dragState.samples[this.dragState.samples.length - 1].y - canvasY;
+      const dx = this.dragState.samples[this.dragState.samples.length - 1].x - canvasX;
+
+      if (Math.abs(dy) > 2 || Math.abs(dx) > 2) {
+        this.dragState.moved = true;
+      }
+
+      if (this.dragState.moved) {
+        this.scroll.scroll(this.dragState.scrollContainer, dx, dy);
+        // Track velocity samples (keep last 5)
+        this.dragState.samples.push({ time: Date.now(), y: canvasY, x: canvasX });
+        if (this.dragState.samples.length > 5) {
+          this.dragState.samples.shift();
+        }
+      }
+    }
+
+    if (eventType === 'pointerup' && this.dragState) {
+      if (this.dragState.moved) {
+        const velocity = this.computeDragVelocity(this.dragState.samples);
+        this.scroll.fling(this.dragState.scrollContainer, -velocity.vy);
+      }
+      try { this.canvas.releasePointerCapture(domEvent.pointerId); } catch {}
+      const wasDrag = this.dragState.moved;
+      this.dragState = null;
+      // If we were dragging, suppress the click
+      if (wasDrag) return;
+    }
 
     // Pointer enter/leave + cursor
     if (eventType === 'pointermove') {
@@ -102,6 +191,11 @@ export class EventDispatcher {
         this.hoveredNode = hitNode;
         this.cursor.update(hitNode);
       }
+    }
+
+    // Don't dispatch click/move events while actively dragging
+    if (this.dragState?.moved && (eventType === 'pointermove' || eventType === 'click')) {
+      return;
     }
 
     // Focus on click
@@ -119,6 +213,87 @@ export class EventDispatcher {
     if (!reactEventName) return;
 
     this.dispatchWithBubbling(hitNode, reactEventName, domEvent, canvasX, canvasY);
+  }
+
+  private handlePointerLeaveCanvas(domEvent: PointerEvent): void {
+    // End drag when pointer leaves canvas
+    if (this.dragState) {
+      if (this.dragState.moved) {
+        const velocity = this.computeDragVelocity(this.dragState.samples);
+        this.scroll.fling(this.dragState.scrollContainer, -velocity.vy);
+      }
+      this.dragState = null;
+    }
+  }
+
+  /** Compute velocity from drag samples (px/ms → px/frame at 60fps) */
+  private computeDragVelocity(samples: VelocitySample[]): { vx: number; vy: number } {
+    if (samples.length < 2) return { vx: 0, vy: 0 };
+    const first = samples[0];
+    const last = samples[samples.length - 1];
+    const dt = last.time - first.time;
+    if (dt === 0) return { vx: 0, vy: 0 };
+    // Convert px/ms to px/s (popmotion decay expects px/s)
+    return {
+      vx: ((last.x - first.x) / dt) * 1000,
+      vy: ((last.y - first.y) / dt) * 1000,
+    };
+  }
+
+  // --- Touch events for mobile/iframe scroll ---
+
+  private handleTouchStart(domEvent: TouchEvent): void {
+    if (domEvent.touches.length !== 1) return;
+    const touch = domEvent.touches[0];
+    const { canvasX, canvasY } = this.getTouchCanvasCoords(touch);
+    const hitNode = this.hitTester.hitTest(this.rootNode, canvasX, canvasY);
+    if (!hitNode) return;
+
+    const scrollContainer = this.scroll.findScrollContainer(hitNode);
+    if (scrollContainer) {
+      domEvent.preventDefault();
+      this.scroll.cancelAnimation(scrollContainer);
+      this.scroll.resetWheelTarget(scrollContainer);
+      this.dragState = {
+        scrollContainer,
+        startY: canvasY,
+        startX: canvasX,
+        samples: [{ time: Date.now(), y: canvasY, x: canvasX }],
+        moved: false,
+      };
+    }
+  }
+
+  private handleTouchMove(domEvent: TouchEvent): void {
+    if (!this.dragState || domEvent.touches.length !== 1) return;
+    domEvent.preventDefault();
+    const touch = domEvent.touches[0];
+    const { canvasX, canvasY } = this.getTouchCanvasCoords(touch);
+
+    const lastSample = this.dragState.samples[this.dragState.samples.length - 1];
+    const dy = lastSample.y - canvasY;
+    const dx = lastSample.x - canvasX;
+
+    if (Math.abs(dy) > 2 || Math.abs(dx) > 2) {
+      this.dragState.moved = true;
+    }
+
+    if (this.dragState.moved) {
+      this.scroll.scroll(this.dragState.scrollContainer, dx, dy);
+      this.dragState.samples.push({ time: Date.now(), y: canvasY, x: canvasX });
+      if (this.dragState.samples.length > 5) {
+        this.dragState.samples.shift();
+      }
+    }
+  }
+
+  private handleTouchEnd(_domEvent: TouchEvent): void {
+    if (!this.dragState) return;
+    if (this.dragState.moved) {
+      const velocity = this.computeDragVelocity(this.dragState.samples);
+      this.scroll.fling(this.dragState.scrollContainer, -velocity.vy);
+    }
+    this.dragState = null;
   }
 
   private handleKeyboardEvent(domEvent: KeyboardEvent, eventName: KeyboardEventName): void {
@@ -174,7 +349,7 @@ export class EventDispatcher {
     if (!scrollContainer) return;
 
     domEvent.preventDefault();
-    this.scroll.scroll(scrollContainer, domEvent.deltaX, domEvent.deltaY, domEvent);
+    this.scroll.smoothWheel(scrollContainer, domEvent.deltaY, domEvent);
   }
 
   private dispatchWithBubbling(
