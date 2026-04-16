@@ -151,21 +151,21 @@ Scroll offset tracked via wheel/touch events on the canvas element:
 
 ## Validation Criteria
 
-A "before/after diff" only proves pixels changed — trivially true for any scroll. The real criteria for infinite list correctness are:
+Visual fidelity vs react-dom is validated separately (see `visual-diff.spec.ts`). Infinite list validation focuses on **scrolling performance and correctness**.
 
-### 1. Content Correctness (per-scroll-position snapshot)
+### 1. Scroll Frame Budget
 
-Render the same list items with react-dom at a known scroll offset. Compare against react-pxl canvas at the same scroll offset. The visible items must match.
+Continuous scroll through a 10K-item list must maintain 60fps:
 
-```
-Scroll to item[50] → screenshot react-dom viewport → screenshot react-pxl viewport → pixelmatch
-```
-
-This validates that the **right items** appear at the **right positions** after scroll — not just that something changed.
+| Metric | Target | How to measure |
+|--------|--------|----------------|
+| Scroll frame time | < 16ms | `performance.now()` around each rAF callback during wheel events |
+| First paint | < 16ms | Time from `render()` call to first `rAF` completion |
+| Frame drops during scroll | 0 | Count frames exceeding 16ms over a 5-second scroll |
 
 ### 2. Item Order & Continuity
 
-After scrolling N pixels, the first visible item should be deterministic. Verify by reading text content from the canvas (via test fixture data) or by comparing against a known-good reference.
+After scrolling, visible items must be correct and contiguous:
 
 ```
 scroll(500px) → first visible item should be item[K]
@@ -173,33 +173,31 @@ scroll(500px) more → first visible item should be item[K + M]
 no gaps, no duplicates, no items out of order
 ```
 
+Verified via test fixture: each item renders its index as text. After scroll, read the visible item indices from the internal node tree and assert sequential order.
+
 ### 3. Round-Trip Stability
 
-Scroll down, then scroll back to the original position. The canvas output must be pixel-identical to the initial render. This catches:
-- State leaks from virtualization
-- Layout drift from cumulative rounding errors
-- Missing items after recycling
+Scroll down then back to origin — canvas must be pixel-identical to initial render:
 
 ```
 screenshot(scrollTop=0) → scroll down 5000px → scroll back to 0 → screenshot → pixelmatch = 0
 ```
 
-### 4. Performance Budget
+Catches: state leaks, layout drift from rounding errors, missing items after culling.
 
-For a 10K-item list, frame time must stay under budget during scroll:
+### 4. Scale Thresholds
 
-| Metric | Target |
-|--------|--------|
-| First paint (visible items) | < 16ms |
-| Scroll frame time | < 16ms (60fps) |
-| Memory per item | < 1KB (PxlNode overhead) |
+| List size | First paint | Scroll fps | Status |
+|-----------|-------------|------------|--------|
+| 1K | < 5ms | 60fps | Baseline |
+| 10K | < 30ms | 60fps | Target |
+| 100K | < 300ms | 60fps | Stretch goal (needs Layer 3 deferral) |
 
-### 5. Visual Fidelity at Scroll Boundaries
+### 5. Boundary Edge Cases
 
-Edge cases to validate:
-- Partially visible items at top/bottom edges render correctly (not clipped wrong)
-- First item and last item are reachable and fully visible at min/max scroll
-- Content height matches expected total (no collapsed or missing space)
+- Partially visible items at top/bottom edges clip correctly
+- First and last items are reachable at min/max scroll positions
+- Total scrollable height equals sum of all item heights (no collapsed space)
 
 ## Non-Goals
 
