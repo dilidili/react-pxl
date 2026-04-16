@@ -1,57 +1,136 @@
 ---
-title: react-pxl
+title: react-pxl — React to Canvas Renderer
 ---
 
-import { Cards } from 'nextra/components'
+import './hero.css'
 
-# react-pxl
+<div className="hero-wrapper">
 
-**React → Canvas. Declarative UI, pixel-perfect rendering.**
+<div className="hero-badge">✦ Open Source</div>
 
-react-pxl is a React custom renderer that targets HTML Canvas instead of DOM. Write standard JSX — `<div>`, `<span>`, `<h1>`, `<img>` — and it renders to a Canvas 2D context with flexbox layout, text wrapping, images, scrolling, and events.
+<h1 className="hero-title">
+  React to Canvas,<br />
+  <span className="hero-title-gradient">pixel-perfect.</span>
+</h1>
 
-## Why?
+<p className="hero-subtitle">
+  A React custom renderer that draws your existing JSX to Canvas instead of DOM.
+  Zero migration. Same code. Different target.
+</p>
 
-- **Zero migration** — your existing React components render to canvas without rewriting
-- **AI-native** — canvas output is deterministic, diffable, and optimized for LLM-generated UIs
-- **Performance** — single canvas element vs thousands of DOM nodes
-- **Portability** — render to any canvas: browser, node-canvas, OffscreenCanvas
+<div className="hero-actions">
+  <a href="/docs/getting-started" className="hero-btn-primary">
+    Get Started →
+  </a>
+  <a href="https://github.com/dilidili/react-pxl" className="hero-btn-secondary">
+    GitHub ↗
+  </a>
+</div>
 
-## Quick Start
+<div className="hero-install">
+  <span>$</span>
+  <code>npm install react-pxl</code>
+</div>
 
-```bash
-npm install react-pxl
-```
+{/* ── Side-by-side comparison ── */}
+<div className="compare-section">
+  <div className="compare-label">
+    <span className="active">Canvas (react-pxl)</span>
+    <span>DOM (react-dom)</span>
+  </div>
+  <div className="compare-grid">
+    <div className="compare-card">
+      <img src="/screenshots/profile-pxl.png" width="380" height="460" alt="Canvas output" />
+      <div className="compare-card-label canvas">⬡ Canvas — Single &lt;canvas&gt; element</div>
+    </div>
+    <div className="compare-card">
+      <img src="/screenshots/profile-dom.png" width="380" height="460" alt="DOM output" />
+      <div className="compare-card-label dom">◇ DOM — Standard react-dom render</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+{/* ── Features ── */}
+<div className="features-section">
+<div className="features-grid">
+  <div className="feature-card">
+    <div className="feature-icon">🔄</div>
+    <div className="feature-title">Zero Migration</div>
+    <div className="feature-desc">Your existing &lt;div&gt;, &lt;p&gt;, &lt;h1&gt;, &lt;img&gt; components render to canvas as-is. No rewrites needed.</div>
+  </div>
+  <div className="feature-card">
+    <div className="feature-icon">📐</div>
+    <div className="feature-title">Flexbox Layout</div>
+    <div className="feature-desc">Powered by Yoga WASM — full flexbox support including direction, wrap, gap, align, and justify.</div>
+  </div>
+  <div className="feature-card">
+    <div className="feature-icon">🎨</div>
+    <div className="feature-title">Tailwind Classes</div>
+    <div className="feature-desc">Built-in runtime parser for Tailwind utilities. Use className just like react-dom.</div>
+  </div>
+  <div className="feature-card">
+    <div className="feature-icon">🖱️</div>
+    <div className="feature-title">Full Event System</div>
+    <div className="feature-desc">Click, pointer, keyboard, focus, and scroll events with bubbling — mirrors DOM behavior.</div>
+  </div>
+  <div className="feature-card">
+    <div className="feature-icon">🖼️</div>
+    <div className="feature-title">Images & Clipping</div>
+    <div className="feature-desc">Async image loading, object-fit modes, and border-radius clipping — all canvas-native.</div>
+  </div>
+  <div className="feature-card">
+    <div className="feature-icon">⚡</div>
+    <div className="feature-title">Dirty-Rect Rendering</div>
+    <div className="feature-desc">Only repaints changed regions. One canvas element instead of thousands of DOM nodes.</div>
+  </div>
+</div>
+</div>
+
+{/* ── Scroll demo ── */}
+<div className="scroll-section">
+  <div className="scroll-section-title">Scrollable Lists, on Canvas</div>
+  <p className="scroll-section-sub">
+    200 items in a scrollable container. Plain React list rendering — no virtualization needed.
+  </p>
+  <div className="scroll-demo-wrapper">
+    <div className="scroll-demo-card">
+      <img src="/screenshots/scroll.png" width="420" height="520" alt="Scroll demo" />
+    </div>
+  </div>
+</div>
+
+{/* ── Code sample ── */}
+<div className="code-section">
+<div className="code-section-title">Familiar API</div>
+<p className="code-section-sub">Two lines to switch from DOM to Canvas.</p>
 
 ```tsx
 import { render } from 'react-pxl'
 
 function App() {
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      padding: 24,
-      gap: 12,
-      backgroundColor: '#f1f5f9',
-    }}>
-      <h1 style={{ fontSize: 28, color: '#1e293b' }}>
-        Hello, Canvas!
-      </h1>
-      <p style={{ fontSize: 16, color: '#64748b' }}>
-        This is rendered entirely on a canvas element.
-      </p>
+    <div style={{ padding: 24, gap: 12, backgroundColor: '#f1f5f9' }}>
+      <h1 style={{ fontSize: 28, color: '#1e293b' }}>Hello, Canvas!</h1>
+      <p style={{ color: '#64748b' }}>Same JSX. Different renderer.</p>
     </div>
   )
 }
 
-const canvas = document.getElementById('root') as HTMLCanvasElement
+const canvas = document.getElementById('root')
 render(<App />, canvas)
 ```
 
-<Cards>
-  <Cards.Card title="Getting Started" href="/docs/getting-started" />
-  <Cards.Card title="Live Demos" href="/docs/demos" />
-  <Cards.Card title="DOM Compatibility" href="/docs/guides/dom-compat" />
-  <Cards.Card title="API Reference" href="/docs/api" />
-</Cards>
+</div>
+
+{/* ── Footer CTA ── */}
+<div className="footer-cta">
+  <div className="footer-cta-title">Ready to render?</div>
+  <p className="footer-cta-sub">Get started in under a minute.</p>
+  <div className="hero-actions">
+    <a href="/docs/getting-started" className="hero-btn-primary">
+      Read the Docs →
+    </a>
+  </div>
+</div>

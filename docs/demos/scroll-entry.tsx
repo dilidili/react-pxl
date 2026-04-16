@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '../../packages/reconciler/src/renderer';
-import { FormDemo } from './FormDemo';
+import { InfiniteList } from './InfiniteList';
 
 const canvas = document.getElementById('root') as HTMLCanvasElement;
-render(<FormDemo />, canvas);
+render(<InfiniteList />, canvas);

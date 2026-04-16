@@ -25,7 +25,7 @@ const navbar = (
         <span style={{ color: '#1e293b' }}>pxl</span>
       </span>
     }
-    projectLink="https://github.com/user/react-pxl"
+    projectLink="https://github.com/dilidili/react-pxl"
   />
 )
 
@@ -45,7 +45,7 @@ export default async function RootLayout({ children }) {
         <Layout
           navbar={navbar}
           pageMap={await getPageMap()}
-          docsRepositoryBase="https://github.com/user/react-pxl/tree/main/docs"
+          docsRepositoryBase="https://github.com/dilidili/react-pxl/tree/master/docs"
           footer={footer}
           sidebar={{ defaultMenuCollapseLevel: 1 }}
           editLink="Edit this page on GitHub"

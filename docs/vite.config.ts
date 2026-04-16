@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
-const demos = ['dashboard', 'tailwind', 'form', 'image'];
+const demos = ['profile-pxl', 'profile-dom', 'scroll'];
 
 export default defineConfig({
   plugins: [react()],

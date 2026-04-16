@@ -7,3 +7,4 @@ dist/
 # Validation results (persisted for human review, not committed)
 validation-results/
 test-results/
+.vercel

@@ -6,166 +6,82 @@ import { DemoEmbed } from '../../components/DemoEmbed'
 
 # Demos
 
-Live demos rendered entirely on a `<canvas>` element using react-pxl. Each demo uses the same JSX you'd write for react-dom — no special components needed.
+## Same Code, Two Renderers
 
-## Dashboard
+The same `ProfileCard` component rendered with **react-dom** (DOM) and **react-pxl** (Canvas). No code changes between the two — just swap the render call.
 
-A stats dashboard with color-coded metric cards and a weekly activity chart. Uses inline styles with flexbox layout.
+<div style={{ display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap', margin: '24px 0' }}>
+  <DemoEmbed
+    title="Canvas (react-pxl)"
+    src="/demos/profile-pxl.html"
+    screenshot="/screenshots/profile-pxl.png"
+  />
+  <DemoEmbed
+    title="DOM (react-dom)"
+    src="/demos/profile-dom.html"
+    screenshot="/screenshots/profile-dom.png"
+  />
+</div>
 
-<DemoEmbed
-  name="dashboard"
-  title="Dashboard Demo"
-  src="/demos/dashboard.html"
-  screenshot="/screenshots/dashboard.png"
-/>
-
-```tsx
-function Dashboard() {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: 600, height: 400,
-      backgroundColor: '#f8fafc', padding: 20, gap: 16, fontFamily: 'Arial' }}>
-      <div style={{ display: 'flex', flexDirection: 'row',
-        justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ fontSize: 22, fontWeight: 'bold', color: '#0f172a' }}>Dashboard</h1>
-        <span style={{ fontSize: 12, color: '#64748b' }}>Last updated: just now</span>
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'row', gap: 12 }}>
-        <div style={{ flex: 1, backgroundColor: '#eff6ff', padding: 16, borderRadius: 10 }}>
-          <span style={{ fontSize: 11, color: '#64748b', fontWeight: 'bold' }}>Revenue</span>
-          <span style={{ fontSize: 24, fontWeight: 'bold', color: '#3b82f6' }}>$12,450</span>
-        </div>
-        <div style={{ flex: 1, backgroundColor: '#ecfdf5', padding: 16, borderRadius: 10 }}>
-          <span style={{ fontSize: 11, color: '#64748b', fontWeight: 'bold' }}>Users</span>
-          <span style={{ fontSize: 24, fontWeight: 'bold', color: '#10b981' }}>1,247</span>
-        </div>
-        <div style={{ flex: 1, backgroundColor: '#fffbeb', padding: 16, borderRadius: 10 }}>
-          <span style={{ fontSize: 11, color: '#64748b', fontWeight: 'bold' }}>Orders</span>
-          <span style={{ fontSize: 24, fontWeight: 'bold', color: '#f59e0b' }}>384</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-```
-
-## Sign In Form
-
-A login form with input fields, a submit button, and sign-up link. Demonstrates border rendering, placeholder text, and interactive elements.
-
-<DemoEmbed
-  name="form"
-  title="Sign In Form Demo"
-  src="/demos/form.html"
-  screenshot="/screenshots/form.png"
-/>
+The component is standard JSX — `<div>`, `<img>`, `<span>`, `<button>`:
 
 ```tsx
-function SignInForm() {
+function ProfileCard() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', width: 600, height: 400,
-      backgroundColor: '#ffffff', padding: 32, gap: 20, justifyContent: 'center' }}>
-      <h1 style={{ fontSize: 24, fontWeight: 'bold', color: '#0f172a' }}>Sign In</h1>
-      <p style={{ fontSize: 14, color: '#64748b' }}>
-        Welcome back! Enter your credentials to continue.
-      </p>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <span style={{ fontSize: 13, fontWeight: 'bold', color: '#334155' }}>Email</span>
-        <div style={{ backgroundColor: '#f8fafc', borderWidth: 1,
-          borderColor: '#e2e8f0', borderRadius: 8, padding: 12 }}>
-          <span style={{ fontSize: 14, color: '#94a3b8' }}>you@example.com</span>
-        </div>
+    <div style={{ width: 380, height: 460, backgroundColor: '#ffffff', borderRadius: 16 }}>
+      <div style={{ height: 120, backgroundColor: '#667eea' }} />
+      <div style={{ alignItems: 'center', marginTop: -40, padding: 20 }}>
+        <img src="avatar.svg" style={{ width: 80, height: 80, borderRadius: 40 }} />
+        <span style={{ fontSize: 20, fontWeight: 'bold' }}>Jane Cooper</span>
+        <span style={{ fontSize: 14, color: '#64748b' }}>Full-Stack Developer</span>
       </div>
-
-      <button style={{ backgroundColor: '#3b82f6', color: '#ffffff',
-        fontSize: 14, fontWeight: 'bold', padding: 14, borderRadius: 8 }}>
-        Sign In
+      <button style={{ backgroundColor: '#4f46e5', color: '#fff', borderRadius: 10 }}>
+        Follow
       </button>
     </div>
   )
 }
+
+// Canvas — swap one line:
+import { render } from 'react-pxl'
+render(<ProfileCard />, canvas)
+
+// DOM — the original:
+import { createRoot } from 'react-dom/client'
+createRoot(el).render(<ProfileCard />)
 ```
 
-## Tailwind Classes
+---
 
-Demonstrates the built-in Tailwind utility class parser. All styling done via `className` — no inline styles except dimensions.
+## Scrollable List — 200 Items
 
-<DemoEmbed
-  name="tailwind"
-  title="Tailwind Demo"
-  src="/demos/tailwind.html"
-  screenshot="/screenshots/tailwind.png"
-/>
+A plain React list with 200 items inside `overflow: 'scroll'`. No virtualization, no special components — just `.map()` and standard elements.
+
+<div style={{ display: 'flex', justifyContent: 'center', margin: '24px 0' }}>
+  <DemoEmbed
+    title="Scroll Demo (react-pxl)"
+    src="/demos/scroll.html"
+    screenshot="/screenshots/scroll.png"
+  />
+</div>
 
 ```tsx
-function TailwindDemo() {
-  return (
-    <div className="flex flex-col bg-slate-50 p-5 gap-4"
-      style={{ width: 600, height: 400 }}>
-      <h1 className="text-xl font-bold text-slate-900">Tailwind Classes</h1>
+function ActivityFeed() {
+  const items = Array.from({ length: 200 }, (_, i) => ({
+    id: i, name: names[i % 8], message: messages[i % 8],
+  }))
 
-      {/* Color palette */}
-      <div className="flex flex-row gap-2">
-        {['bg-red-500', 'bg-orange-500', 'bg-amber-500', 'bg-emerald-500',
-          'bg-blue-500', 'bg-violet-500', 'bg-pink-500'].map(cls => (
-          <div key={cls} className={cls + ' rounded-lg flex-1'} style={{ height: 40 }} />
+  return (
+    <div style={{ width: 420, height: 520 }}>
+      <div style={{ fontSize: 18, fontWeight: 'bold' }}>Activity Feed</div>
+      <div style={{ flex: 1, overflow: 'scroll', gap: 6 }}>
+        {items.map(item => (
+          <div key={item.id} style={{ padding: 12, borderRadius: 10 }}>
+            <span style={{ fontWeight: 'bold' }}>{item.name}</span>
+            <span style={{ color: '#64748b' }}>{item.message}</span>
+          </div>
         ))}
       </div>
-
-      {/* Cards */}
-      <div className="flex flex-row gap-3" style={{ flex: 1 }}>
-        <div className="flex-1 flex flex-col p-4 bg-blue-500 rounded-xl gap-2">
-          <span className="text-base font-bold text-white">Card A</span>
-          <span className="text-xs text-blue-100">Styled with className only</span>
-        </div>
-        <div className="flex-1 flex flex-col p-4 bg-emerald-500 rounded-xl gap-2">
-          <span className="text-base font-bold text-white">Card B</span>
-          <span className="text-xs text-emerald-100">Supports all common utilities</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-```
-
-## Images & Avatars
-
-Team member cards with circular avatar images using `borderRadius` clipping and SVG data URIs. Shows async image loading and object-fit.
-
-<DemoEmbed
-  name="image"
-  title="Image Demo"
-  src="/demos/image.html"
-  screenshot="/screenshots/image.png"
-/>
-
-```tsx
-function TeamMembers() {
-  const team = [
-    { name: 'Alice', role: 'Engineer', color: '#3b82f6' },
-    { name: 'Bob', role: 'Designer', color: '#10b981' },
-    { name: 'Carol', role: 'PM', color: '#f59e0b' },
-    { name: 'Dave', role: 'DevOps', color: '#8b5cf6' },
-  ]
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'row', gap: 16 }}>
-      {team.map(person => (
-        <div key={person.name} style={{
-          flex: 1, alignItems: 'center', backgroundColor: '#1e293b',
-          borderRadius: 12, padding: 20, gap: 12,
-        }}>
-          <img
-            src={`data:image/svg+xml,...`}
-            style={{ width: 64, height: 64, borderRadius: 32 }}
-          />
-          <span style={{ fontSize: 15, fontWeight: 'bold', color: '#f1f5f9' }}>
-            {person.name}
-          </span>
-          <span style={{ fontSize: 12, color: '#94a3b8' }}>{person.role}</span>
-        </div>
-      ))}
     </div>
   )
 }
