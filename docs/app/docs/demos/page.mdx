@@ -86,3 +86,75 @@ function ActivityFeed() {
   )
 }
 ```
+
+---
+
+## Benchmark: react-pxl vs react-window — 1000 Items, Dynamic Heights
+
+Both lists render the **same 1000 items** with heights randomly varying between 40–200px (same seed for deterministic comparison). Scroll both and compare the **live FPS counter** in the top-right corner.
+
+<div style={{ display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap', margin: '24px 0' }}>
+  <DemoEmbed
+    title="react-pxl (Canvas) — FPS ↗"
+    src="/demos/benchmark-pxl.html"
+    screenshot="/screenshots/benchmark-pxl.png"
+  />
+  <DemoEmbed
+    title="react-window (DOM) — FPS ↗"
+    src="/demos/benchmark-rw.html"
+    screenshot="/screenshots/benchmark-rw.png"
+  />
+</div>
+
+### The Syntax Difference
+
+**react-pxl** — standard JSX, no special API:
+
+```tsx
+// Just a normal list. overflow: 'scroll' enables implicit virtualization.
+function InfiniteList({ items }) {
+  return (
+    <div style={{ height: 520, overflow: 'scroll' }}>
+      {items.map(item => (
+        <div key={item.id} style={{ height: item.height, padding: 12 }}>
+          <span>{item.name}</span>
+          <span>{item.message}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+**react-window** — requires VariableSizeList, itemSize callback, render-prop:
+
+```tsx
+import { VariableSizeList } from 'react-window'
+
+// Must provide itemCount, itemSize function, and render callback.
+// Can't use children directly — forced into index-based access.
+function InfiniteList({ items, heights }) {
+  return (
+    <VariableSizeList
+      height={520}
+      width={420}
+      itemCount={items.length}
+      itemSize={(index) => heights[index]}
+    >
+      {({ index, style }) => (
+        <div style={{ ...style, padding: 12 }}>
+          <span>{items[index].name}</span>
+          <span>{items[index].message}</span>
+        </div>
+      )}
+    </VariableSizeList>
+  )
+}
+```
+
+| | react-pxl | react-window |
+|---|---|---|
+| Syntax | Standard JSX + `.map()` | `VariableSizeList` + render callback |
+| Item heights | Automatic (Yoga layout) | Must provide `itemSize` function |
+| Migration cost | Zero — swap render call | Rewrite list rendering code |
+| Dynamic heights | Just works | Pre-measure or estimate + correct |
