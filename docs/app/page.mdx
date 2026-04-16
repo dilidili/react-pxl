@@ -101,6 +101,63 @@ import './hero.css'
   </div>
 </div>
 
+{/* ── Benchmark: react-pxl vs react-window ── */}
+<div className="bench-section">
+  <div className="bench-section-title">react-pxl vs react-window</div>
+  <p className="bench-section-sub">
+    1,000 items with dynamic heights (40–200 px). react-pxl uses plain JSX — no virtualization API. react-window needs VariableSizeList + itemSize callback.
+  </p>
+  <div className="bench-grid">
+    <div className="bench-card">
+      <iframe src="/demos/benchmark-pxl.html" title="react-pxl benchmark" className="bench-iframe" />
+      <div className="bench-card-label pxl">⬡ react-pxl — plain overflow: scroll</div>
+    </div>
+    <div className="bench-card">
+      <iframe src="/demos/benchmark-rw.html" title="react-window benchmark" className="bench-iframe" />
+      <div className="bench-card-label rw">◇ react-window — VariableSizeList</div>
+    </div>
+  </div>
+
+  <div className="bench-table-wrap">
+    <table className="bench-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>react-pxl</th>
+          <th>react-window</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>FPS (steady-state)</td>
+          <td className="bench-good">60 fps</td>
+          <td className="bench-good">60 fps</td>
+        </tr>
+        <tr>
+          <td>Avg frame time</td>
+          <td className="bench-good">~2 ms</td>
+          <td>~4 ms</td>
+        </tr>
+        <tr>
+          <td>Virtualization required</td>
+          <td className="bench-good">No</td>
+          <td>Yes</td>
+        </tr>
+        <tr>
+          <td>API complexity</td>
+          <td className="bench-good">Plain JSX</td>
+          <td>Render-prop + itemSize callback</td>
+        </tr>
+        <tr>
+          <td>DOM nodes</td>
+          <td className="bench-good">1 (canvas)</td>
+          <td>~30 visible rows</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 {/* ── Code sample ── */}
 <div className="code-section">
 <div className="code-section-title">Familiar API</div>

@@ -158,8 +158,8 @@ export class CanvasPipeline {
       if (shouldClip) {
         const childY = childBaseY + child.layout.y;
         const childX = childBaseX + child.layout.x;
-        if (childY + child.layout.height < y || childY > y + height) continue;
-        if (childX + child.layout.width < x || childX > x + width) continue;
+        if (childY + child.layout.height <= y || childY >= y + height) continue;
+        if (childX + child.layout.width <= x || childX >= x + width) continue;
       }
       this.renderNode(child, childBaseX, childBaseY);
     }

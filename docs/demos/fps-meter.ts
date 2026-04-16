@@ -77,15 +77,12 @@ export class FpsMeter {
 
     const avgRecent = this.recentFrames.reduce((a, b) => a + b, 0) / this.recentFrames.length;
     const fps = Math.round(1000 / avgRecent);
-    const dropped = this.frameTimes.filter(t => t > 16.67).length;
 
     const color = fps >= 55 ? '#00ff88' : fps >= 30 ? '#ffcc00' : '#ff4444';
     this.el.style.color = color;
     this.el.innerHTML = [
       `<b>FPS: ${fps}</b>`,
       `Frame: ${avgRecent.toFixed(1)}ms`,
-      `Dropped: ${dropped}`,
-      `Total: ${this.frameTimes.length}`,
     ].join('<br>');
   }
 

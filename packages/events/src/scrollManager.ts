@@ -176,23 +176,27 @@ export class ScrollManager {
     }
   }
 
-  /** Get total content height (sum of children layout heights + gaps) */
+  /** Get total content height (sum of children layout heights + gaps + padding) */
   private getContentHeight(node: PxlAnyNode): number {
-    if (node.children.length === 0) return 0;
+    const style = node.props.style ?? {};
+    const pb = (style as any).paddingBottom ?? (style as any).padding ?? 0;
+    if (node.children.length === 0) return pb;
     let maxBottom = 0;
     for (const child of node.children) {
       maxBottom = Math.max(maxBottom, child.layout.y + child.layout.height);
     }
-    return maxBottom;
+    return maxBottom + pb;
   }
 
-  /** Get total content width (sum of children layout widths) */
+  /** Get total content width (sum of children layout widths + padding) */
   private getContentWidth(node: PxlAnyNode): number {
-    if (node.children.length === 0) return 0;
+    const style = node.props.style ?? {};
+    const pr = (style as any).paddingRight ?? (style as any).padding ?? 0;
+    if (node.children.length === 0) return pr;
     let maxRight = 0;
     for (const child of node.children) {
       maxRight = Math.max(maxRight, child.layout.x + child.layout.width);
     }
-    return maxRight;
+    return maxRight + pr;
   }
 }
