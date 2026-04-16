@@ -16,7 +16,14 @@ export default defineConfig({
       '@react-pxl/renderer': resolve(__dirname, '../packages/renderer/src'),
       '@react-pxl/events': resolve(__dirname, '../packages/events/src'),
       '@react-pxl/components': resolve(__dirname, '../packages/components/src'),
+      // Deduplicate React — docs/ and root node_modules both have copies;
+      // force a single instance so react-reconciler shares the same React.
+      'react': resolve(__dirname, '../node_modules/react'),
+      'react/jsx-runtime': resolve(__dirname, '../node_modules/react/jsx-runtime'),
+      'react/jsx-dev-runtime': resolve(__dirname, '../node_modules/react/jsx-dev-runtime'),
+      'react-dom': resolve(__dirname, '../node_modules/react-dom'),
     },
+    dedupe: ['react', 'react-dom'],
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-dom/client', 'react-reconciler', 'react-window'],

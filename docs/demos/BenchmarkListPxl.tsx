@@ -30,7 +30,7 @@ export function BenchmarkListPxl({ itemCount = 1000, seed = 12345 }: { itemCount
           react-pxl
         </span>
         <span style={{ fontSize: 11, color: '#94a3b8' }}>
-          {itemCount} items · dynamic heights
+          {`${itemCount} items · dynamic heights`}
         </span>
       </div>
 
@@ -83,7 +83,7 @@ function ItemRow({ item }: { item: SeededItem }) {
           {item.message}
         </span>
         <span style={{ fontSize: 10, color: '#cbd5e1' }}>
-          Item #{item.id + 1} · height: {item.height}px
+          {`Item #${item.id + 1} · height: ${item.height}px`}
         </span>
       </div>
     </div>

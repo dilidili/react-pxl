@@ -79,7 +79,11 @@ export const hostConfig = {
 
     if (TEXT_NODE_ELEMENTS.has(type)) {
       const textContent = typeof props.children === 'string' ? props.children : '';
-      return new PxlTextNode({ ...resolved, children: textContent } as PxlTextProps);
+      if (textContent) {
+        return new PxlTextNode({ ...resolved, children: textContent } as PxlTextProps);
+      }
+      // Mixed/array children: use a container so React can append child text instances
+      return new PxlNode(resolved);
     }
 
     // Default: container node (div, section, nav, button, ul, ol, li, etc.)
@@ -172,7 +176,7 @@ export const hostConfig = {
       instance.updateProps(newProps as PxlNodeProps);
     } else {
       const resolved = resolveProps(type, newProps);
-      if (TEXT_NODE_ELEMENTS.has(type) && typeof newProps.children === 'string') {
+      if (TEXT_NODE_ELEMENTS.has(type) && typeof newProps.children === 'string' && instance.type === 'text') {
         (instance as PxlTextNode).textContent = newProps.children;
       }
       if (IMAGE_ELEMENTS.has(type) && newProps.src) {
