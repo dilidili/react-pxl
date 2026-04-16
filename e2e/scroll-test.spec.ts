@@ -307,11 +307,11 @@ test.describe('Infinite list: scroll performance & correctness', () => {
     expect(topDiffPercent, `Scroll went past top boundary`).toBeLessThan(0.1);
 
     // Scroll to the very bottom
-    for (let i = 0; i < 200; i++) {
+    for (let i = 0; i < 300; i++) {
       await page.mouse.wheel(0, 500);
       await page.waitForTimeout(10);
     }
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
 
     const bottomShot = await canvas.screenshot();
     fs.writeFileSync(path.join(RESULTS_DIR, 'scroll-boundary-bottom.png'), bottomShot);
@@ -321,7 +321,7 @@ test.describe('Infinite list: scroll performance & correctness', () => {
       await page.mouse.wheel(0, 500);
       await page.waitForTimeout(50);
     }
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
 
     const overBottomShot = await canvas.screenshot();
     const bottomImg = PNG.sync.read(bottomShot);
