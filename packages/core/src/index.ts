@@ -5,5 +5,5 @@ export {
   getElementDefaults, mergeStyles,
 } from './styles';
 export { parseTailwind, clearTailwindCache } from './styles';
-export { PxlNode, PxlTextNode, PxlImageNode, setTreeDirtyCallback, type PxlNodeType, type PxlAnyNode } from './nodes';
+export { PxlNode, PxlTextNode, PxlImageNode, setTreeDirtyCallback, wrapText, type PxlNodeType, type PxlAnyNode } from './nodes';
 export type { PxlEventHandler, PxlNodeProps, PxlTextProps, PxlImageProps } from './nodes';

@@ -1,5 +1,5 @@
 import type { PxlTextNode } from '@react-pxl/core';
-import { resolveStyle } from '@react-pxl/core';
+import { resolveStyle, wrapText } from '@react-pxl/core';
 
 /**
  * Draw text content to canvas with word wrapping and alignment.
@@ -29,7 +29,7 @@ export function drawText(
   ctx.fillStyle = node.color;
   ctx.textBaseline = 'top';
 
-  const lineHeight = style.lineHeight ?? node.fontSize * 1.2;
+  const lineHeight = node.resolvedLineHeight;
   const letterSpacing = style.letterSpacing ?? 0;
   const textAlign = node.textAlign;
 
@@ -42,23 +42,8 @@ export function drawText(
   // Available width for text wrapping (subtract padding from layout width)
   const textAreaWidth = width - pl - pr;
 
-  // Word wrap within available width
-  const words = node.textContent.split(' ');
-  const lines: string[] = [];
-  let currentLine = '';
-
-  for (const word of words) {
-    const testLine = currentLine ? `${currentLine} ${word}` : word;
-    const metrics = ctx.measureText(testLine);
-
-    if (metrics.width > textAreaWidth && currentLine) {
-      lines.push(currentLine);
-      currentLine = word;
-    } else {
-      currentLine = testLine;
-    }
-  }
-  if (currentLine) lines.push(currentLine);
+  // Word wrap within available width (shared with measurement)
+  const lines = wrapText(ctx, node.textContent, textAreaWidth);
 
   // Render each line
   for (let i = 0; i < lines.length; i++) {
