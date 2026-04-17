@@ -167,6 +167,11 @@ export class ScrollManager {
     this.wheelTargets.set(container, container.scrollTop);
   }
 
+  /** Check if any animation is active on this container */
+  isAnimating(container: PxlAnyNode): boolean {
+    return this.animations.has(container);
+  }
+
   /** Cancel any active animation on a container */
   cancelAnimation(container: PxlAnyNode): void {
     const anim = this.animations.get(container);

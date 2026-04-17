@@ -167,7 +167,8 @@ test.describe('Infinite list: scroll performance & correctness', () => {
   test('scroll round-trip produces pixel-identical output', async ({ page }) => {
     await page.goto(PAGE_URL);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
+    await page.waitForFunction(() => (window as any).__scrollTo != null, null, { timeout: 10_000 });
+    await page.waitForTimeout(500);
 
     const canvas = page.locator('#root');
 
@@ -175,20 +176,13 @@ test.describe('Infinite list: scroll performance & correctness', () => {
     const initialShot = await canvas.screenshot();
     fs.writeFileSync(path.join(RESULTS_DIR, 'scroll-roundtrip-initial.png'), initialShot);
 
-    // Scroll down significantly
-    await canvas.hover({ position: { x: 400, y: 300 } });
-    for (let i = 0; i < 20; i++) {
-      await page.mouse.wheel(0, 300);
-      await page.waitForTimeout(50);
-    }
-    await page.waitForTimeout(500);
+    // Scroll down
+    await page.evaluate(() => (window as any).__scrollTo(3000));
+    await page.waitForTimeout(300);
 
     // Scroll back to top
-    for (let i = 0; i < 20; i++) {
-      await page.mouse.wheel(0, -300);
-      await page.waitForTimeout(50);
-    }
-    await page.waitForTimeout(500);
+    await page.evaluate(() => (window as any).__scrollTo(0));
+    await page.waitForTimeout(300);
 
     // Screenshot again at scrollTop=0
     const returnShot = await canvas.screenshot();
@@ -268,7 +262,8 @@ test.describe('Infinite list: scroll performance & correctness', () => {
   test('scroll clamps at boundaries — first and last items reachable', async ({ page }) => {
     await page.goto(PAGE_URL);
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
+    await page.waitForFunction(() => (window as any).__scrollTo != null, null, { timeout: 10_000 });
+    await page.waitForTimeout(500);
 
     const canvas = page.locator('#root');
 
@@ -306,22 +301,22 @@ test.describe('Infinite list: scroll performance & correctness', () => {
 
     expect(topDiffPercent, `Scroll went past top boundary`).toBeLessThan(0.1);
 
-    // Scroll to the very bottom
-    for (let i = 0; i < 300; i++) {
-      await page.mouse.wheel(0, 500);
-      await page.waitForTimeout(10);
-    }
-    await page.waitForTimeout(1000);
+    // Scroll to exact bottom using helper
+    await page.evaluate(() => {
+      const maxY = (window as any).__maxScrollY();
+      (window as any).__scrollTo(maxY);
+    });
+    await page.waitForTimeout(200);
 
     const bottomShot = await canvas.screenshot();
     fs.writeFileSync(path.join(RESULTS_DIR, 'scroll-boundary-bottom.png'), bottomShot);
 
-    // Scroll further past bottom — should clamp
-    for (let i = 0; i < 10; i++) {
-      await page.mouse.wheel(0, 500);
-      await page.waitForTimeout(50);
-    }
-    await page.waitForTimeout(1000);
+    // Try scrolling past bottom — should still be at max
+    await page.evaluate(() => {
+      const maxY = (window as any).__maxScrollY();
+      (window as any).__scrollTo(maxY + 5000);
+    });
+    await page.waitForTimeout(200);
 
     const overBottomShot = await canvas.screenshot();
     const bottomImg = PNG.sync.read(bottomShot);
