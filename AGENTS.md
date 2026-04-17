@@ -13,6 +13,7 @@ See [`designs/`](./designs/) for architecture docs, execution plans, and roadmap
 | [`designs/execution-dom-compat.md`](./designs/execution-dom-compat.md) | DOM-compatible JSX + Tailwind utility classes |
 | [`designs/agent-workflow.md`](./designs/agent-workflow.md) | Code generator → validator agent pipeline |
 | [`designs/scroll-motion.md`](./designs/scroll-motion.md) | Scroll system: pointer-drag, momentum, smooth animation |
+| [`designs/canvas-vs-dom-ai-image-to-page.md`](./designs/canvas-vs-dom-ai-image-to-page.md) | Canvas vs DOM trade-offs for AI image→page workflows |
 
 ## Architecture
 
