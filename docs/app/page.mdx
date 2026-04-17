@@ -158,6 +158,59 @@ import './hero.css'
   </div>
 </div>
 
+{/* ── Animated Scroll Benchmark ── */}
+<div className="bench-section">
+  <div className="bench-section-title">Scroll-Linked Animations</div>
+  <p className="bench-section-sub">
+    Per-item visual effects driven by scroll position — opacity, scale, parallax, and color shift.
+    Toggle effects on/off and watch the FPS difference.
+  </p>
+  <div className="bench-grid">
+    <div className="bench-card">
+      <iframe src="/demos/benchmark-animated-pxl.html" title="react-pxl animated benchmark" className="bench-iframe" />
+      <div className="bench-card-label pxl">⬡ react-pxl — scroll effects on canvas</div>
+    </div>
+    <div className="bench-card">
+      <iframe src="/demos/benchmark-animated-rw.html" title="react-window animated benchmark" className="bench-iframe" />
+      <div className="bench-card-label rw">◇ react-window — scroll effects on DOM</div>
+    </div>
+  </div>
+
+  <div className="bench-table-wrap">
+    <table className="bench-table">
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>react-pxl</th>
+          <th>react-window</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>No effects</td>
+          <td className="bench-good">60 fps</td>
+          <td className="bench-good">60 fps</td>
+        </tr>
+        <tr>
+          <td>Opacity only</td>
+          <td className="bench-good">60 fps</td>
+          <td className="bench-good">~58 fps</td>
+        </tr>
+        <tr>
+          <td>All 4 effects</td>
+          <td className="bench-good">60 fps</td>
+          <td>~40–50 fps</td>
+        </tr>
+        <tr>
+          <td>Why</td>
+          <td className="bench-good">Canvas redraw: same cost ± effects</td>
+          <td>DOM: per-item style mutation → reflow/repaint</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 {/* ── Code sample ── */}
 <div className="code-section">
 <div className="code-section-title">Familiar API</div>

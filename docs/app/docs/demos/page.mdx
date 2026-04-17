@@ -158,3 +158,22 @@ function InfiniteList({ items, heights }) {
 | Item heights | Automatic (Yoga layout) | Must provide `itemSize` function |
 | Migration cost | Zero — swap render call | Rewrite list rendering code |
 | Dynamic heights | Just works | Pre-measure or estimate + correct |
+
+---
+
+## Animated Scroll: Per-Item Motion Effects
+
+Both lists apply **scroll-position-driven visual effects** — opacity, scale, parallax, and color shift — on every item based on distance from the viewport center. Toggle effects on/off to compare performance.
+
+<div style={{ display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap', margin: '24px 0' }}>
+  <DemoEmbed
+    title="react-pxl — scroll effects on canvas"
+    src="/demos/benchmark-animated-pxl.html"
+  />
+  <DemoEmbed
+    title="react-window — scroll effects on DOM"
+    src="/demos/benchmark-animated-rw.html"
+  />
+</div>
+
+**Why canvas wins here**: In react-pxl, changing an item's opacity or color is just a different number passed to `fillRect()` — the canvas redraws once per frame regardless. In DOM, each item's `style` must be mutated individually, triggering browser reflow/repaint cascades.

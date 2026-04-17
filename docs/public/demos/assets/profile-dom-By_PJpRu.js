@@ -1,0 +1,1 @@
+import{n as e,t}from"./jsx-runtime-DcQghCYB.js";import{t as n}from"./ProfileCard-BcQOCxbj.js";import{t as r}from"./client-Ct4oqALQ.js";e();var i=r(),a=t();(0,i.createRoot)(document.getElementById(`root`)).render((0,a.jsx)(n,{}));
