@@ -126,6 +126,36 @@ describe('ScrollManager', () => {
       expect(onScroll).toHaveBeenCalledOnce();
       expect(onScroll.mock.calls[0][0].type).toBe('onScroll');
     });
+
+    it('should not accumulate debt when over-scrolling past boundaries', () => {
+      const sm = new ScrollManager();
+      const container = makeScrollContainer(200, 600); // maxScroll = 400
+
+      // Scroll past the top boundary many times
+      for (let i = 0; i < 20; i++) {
+        sm.smoothWheel(container, -100);
+      }
+      (animate as any).mockClear();
+
+      // A single scroll down should immediately animate to a positive target
+      sm.smoothWheel(container, 100);
+      const call = (animate as any).mock.calls.at(-1)[0];
+      expect(call.to).toBe(100); // not -1900 + 100 = -1800
+
+      (animate as any).mockClear();
+
+      // Similarly, scroll past bottom boundary
+      sm.smoothWheel(container, 99999);
+      for (let i = 0; i < 20; i++) {
+        sm.smoothWheel(container, 100);
+      }
+      (animate as any).mockClear();
+
+      // A single scroll up should immediately move from maxScroll
+      sm.smoothWheel(container, -50);
+      const call2 = (animate as any).mock.calls.at(-1)[0];
+      expect(call2.to).toBe(350); // 400 - 50, not 400 + 2000 - 50
+    });
   });
 
   // --- animateTo tests ---

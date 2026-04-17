@@ -141,9 +141,12 @@ export class ScrollManager {
    * Accumulates wheel deltas into a target and animates toward it.
    */
   smoothWheel(container: PxlAnyNode, deltaY: number, nativeEvent?: Event): void {
-    // Accumulate target
+    // Accumulate target, clamped to valid scroll range.
+    // Without clamping, over-scrolling past a boundary accumulates "debt"
+    // that must be reversed before scrolling in the opposite direction works.
+    const maxScrollY = Math.max(0, this.getContentHeight(container) - container.layout.height);
     const currentTarget = this.wheelTargets.get(container) ?? container.scrollTop;
-    const newTarget = currentTarget + deltaY;
+    const newTarget = Math.max(0, Math.min(maxScrollY, currentTarget + deltaY));
     this.wheelTargets.set(container, newTarget);
 
     this.animateTo(container, newTarget);
