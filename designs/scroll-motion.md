@@ -141,6 +141,51 @@ cancelAnimation(container): void {
 
 ## Testing
 
-- Unit tests: mock `popmotion` animations, verify scroll offsets
-- E2E: Playwright pointer drag on scroll demo, verify position changes
-- Homepage iframe: live demo should be scrollable by dragging
+Three-tier test pyramid — bugs should be caught at the lowest possible level.
+
+### Tier 1: Unit Tests (fast, deterministic)
+
+**ScrollManager** (`packages/events/src/__tests__/scrollManager.test.ts`):
+- `scroll()` — clamping, delta application, `onScroll` handler
+- `smoothWheel()` — target accumulation, animation invocation
+- `animateTo()` / `fling()` — bounds clamping, velocity thresholds
+- `cancelAnimation()` / `resetWheelTarget()` / `isAnimating()`
+- Content height calculation — `paddingBottom`, `padding` shorthand, multi-child, dynamic heights
+- Mock `popmotion` with `vi.mock()` for synchronous execution — **never use real timers**
+
+**Viewport Culling** (`packages/renderer/src/__tests__/pipeline.culling.test.ts`):
+- Basic culling: above/below/left/right of viewport
+- **Boundary operators**: items exactly touching the viewport edge (`<`/`>` not `<=`/`>=`) — this is a known regression source
+- Partially visible items at each edge
+- Culling with scroll offset applied
+- `overflow: visible` containers skip culling entirely
+
+### Tier 2: Integration Tests (no browser)
+
+**Scroll + Culling** (`packages/renderer/src/__tests__/pipeline.scroll-integration.test.ts`):
+- Build PxlNode tree → set layouts → set `scrollTop` → call `render()` → assert via `drawRect` spy
+- Verify correct items drawn at multiple scroll positions (top, middle, max)
+- Round-trip stability: scroll 0→N→0 produces identical draw calls
+- All items reachable: first item at `scrollTop=0`, last item at `maxScrollY`
+- Variable-height items: non-uniform heights with exact culling verification
+
+### Tier 3: E2E Tests (Playwright, browser)
+
+**Scroll performance & correctness** (`e2e/scroll-test.spec.ts`):
+- Frame budget: continuous wheel scroll maintains <16ms avg frame time
+- Item order: visible items are contiguous and sequential after scroll
+- Round-trip pixel stability: screenshot at 0 → scroll → return → pixel-identical
+- Boundary clamping: over-scroll at top/bottom produces no visual change
+
+### Testing Rules
+
+1. **Culling boundary changes require a unit test update.** Changing `<` to `<=` (or vice versa) in `pipeline.ts` viewport culling MUST fail at least one `pipeline.culling.test.ts` test. If it doesn't, the test coverage is insufficient.
+
+2. **E2E tests must not use fixed timeouts for animation settling.** Use the exposed `__scrollTo(y)` and `__maxScrollY()` helpers for deterministic scroll positioning. Use `waitForFunction()` instead of `waitForTimeout()` when waiting for state.
+
+3. **Wheel-based E2E tests are for interaction testing only.** Tests that verify scroll correctness at specific positions should use `__scrollTo()`. Wheel loops are only appropriate for testing the wheel event path itself (frame budget, item order).
+
+4. **New scroll scenarios need all three tiers:**
+   - Unit test the math/logic in isolation
+   - Integration test the pipeline interaction
+   - E2E test only if user-facing behavior is affected
