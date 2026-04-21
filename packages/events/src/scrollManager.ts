@@ -70,6 +70,7 @@ export class ScrollManager {
   /**
    * Animate scroll to a specific target offset using spring physics.
    * Used by wheel scroll for smooth animation.
+   * Fires onScroll per animation frame so React components can track position.
    */
   animateTo(container: PxlAnyNode, targetY: number): void {
     this.cancelAnimation(container);
@@ -89,6 +90,7 @@ export class ScrollManager {
         container.scrollTop = Math.max(0, Math.min(maxScrollY, v));
         if (container.scrollTop !== prev) {
           container.markDirty();
+          this.fireOnScroll(container);
         }
       },
       onComplete: () => {
@@ -120,16 +122,19 @@ export class ScrollManager {
         if (clamped !== container.scrollTop) {
           container.scrollTop = clamped;
           container.markDirty();
+          this.fireOnScroll(container);
         }
         // Stop if we hit bounds
         if (clamped <= 0 || clamped >= maxScrollY) {
           const currentAnim = this.animations.get(container);
           if (currentAnim) currentAnim.stop();
           this.animations.delete(container);
+          this.wheelTargets.set(container, container.scrollTop);
         }
       },
       onComplete: () => {
         this.animations.delete(container);
+        this.wheelTargets.set(container, container.scrollTop);
       },
     });
 
@@ -139,8 +144,9 @@ export class ScrollManager {
   /**
    * Handle wheel event with smooth spring animation.
    * Accumulates wheel deltas into a target and animates toward it.
+   * onScroll fires per animation frame inside animateTo(), not here.
    */
-  smoothWheel(container: PxlAnyNode, deltaY: number, nativeEvent?: Event): void {
+  smoothWheel(container: PxlAnyNode, deltaY: number, _nativeEvent?: Event): void {
     // Accumulate target, clamped to valid scroll range.
     // Without clamping, over-scrolling past a boundary accumulates "debt"
     // that must be reversed before scrolling in the opposite direction works.
@@ -150,19 +156,6 @@ export class ScrollManager {
     this.wheelTargets.set(container, newTarget);
 
     this.animateTo(container, newTarget);
-
-    // Fire onScroll handler
-    const handler = (container.props as any).onScroll;
-    if (handler) {
-      handler(new PxlSyntheticEvent({
-        type: 'onScroll',
-        target: container,
-        currentTarget: container,
-        clientX: 0, clientY: 0,
-        canvasX: 0, canvasY: 0,
-        nativeEvent: nativeEvent ?? new Event('scroll'),
-      }));
-    }
   }
 
   /** Reset wheel target tracking (call when drag starts or scroll position is set externally) */
@@ -181,6 +174,21 @@ export class ScrollManager {
     if (anim) {
       anim.stop();
       this.animations.delete(container);
+    }
+  }
+
+  /** Fire the onScroll handler on a container if one is registered */
+  private fireOnScroll(container: PxlAnyNode): void {
+    const handler = (container.props as any).onScroll;
+    if (handler) {
+      handler(new PxlSyntheticEvent({
+        type: 'onScroll',
+        target: container,
+        currentTarget: container,
+        clientX: 0, clientY: 0,
+        canvasX: 0, canvasY: 0,
+        nativeEvent: new Event('scroll'),
+      }));
     }
   }
 

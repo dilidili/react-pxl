@@ -226,6 +226,52 @@ describe('ScrollManager', () => {
       expect(container.scrollTop).toBeLessThanOrEqual(400);
       expect(container.scrollTop).toBeGreaterThanOrEqual(0);
     });
+
+    it('should sync wheel target after fling stops at top boundary', () => {
+      const sm = new ScrollManager();
+      const container = makeScrollContainer(200, 600); // maxScroll = 400
+
+      // Simulate: user was at 300, started drag → resetWheelTarget(300)
+      container.scrollTop = 300;
+      sm.resetWheelTarget(container);
+
+      // Simulate: drag moved scrollTop to 0
+      container.scrollTop = 0;
+
+      // Fling with negative velocity (momentum toward top)
+      (decay as any).mockClear();
+      sm.fling(container, -500);
+
+      // Now wheel scroll should start from current scrollTop (0), not stale target (300)
+      (animate as any).mockClear();
+      sm.smoothWheel(container, 120);
+
+      const call = (animate as any).mock.calls.at(-1)[0];
+      expect(call.to).toBe(120); // 0 + 120, NOT 300 + 120
+    });
+
+    it('should sync wheel target after fling stops at bottom boundary', () => {
+      const sm = new ScrollManager();
+      const container = makeScrollContainer(200, 600); // maxScroll = 400
+
+      // Simulate: user was at 100, started drag → resetWheelTarget(100)
+      container.scrollTop = 100;
+      sm.resetWheelTarget(container);
+
+      // Simulate: drag moved scrollTop to maxScroll (400)
+      container.scrollTop = 400;
+
+      // Fling with large positive velocity (momentum toward bottom)
+      (decay as any).mockClear();
+      sm.fling(container, 5000);
+
+      // Now wheel scroll should start from 400, not stale target (100)
+      (animate as any).mockClear();
+      sm.smoothWheel(container, -50);
+
+      const call = (animate as any).mock.calls.at(-1)[0];
+      expect(call.to).toBe(350); // 400 - 50, NOT 100 - 50
+    });
   });
 
   // --- cancelAnimation tests ---

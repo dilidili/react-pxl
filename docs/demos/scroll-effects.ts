@@ -12,6 +12,7 @@ export interface ActiveEffects {
   scale: boolean;
   parallax: boolean;
   colorShift: boolean;
+  heightExpand: boolean;
 }
 
 export interface ItemEffects {
@@ -20,6 +21,8 @@ export interface ItemEffects {
   scaleY: number;
   offsetY: number;
   backgroundColor: string;
+  /** Multiplier for item height: 1.0 = base, >1 = expanded, <1 = compressed */
+  heightScale: number;
 }
 
 /**
@@ -49,6 +52,9 @@ export function computeItemEffects(
   const distance = (itemCenter - viewportCenter) / halfViewport;
   const absD = Math.min(Math.abs(distance), 1);
 
+  // Quadratic easing: items stay expanded in the center zone, compress mainly at edges
+  const heightFactor = active.heightExpand ? 0.4 + (1 - absD * absD) * 0.9 : 1;
+
   return {
     opacity: active.opacity ? 1 - absD * 0.6 : 1,
     scaleX: active.scale ? 1 - absD * 0.15 : 1,
@@ -57,6 +63,7 @@ export function computeItemEffects(
     backgroundColor: active.colorShift
       ? shiftColor(baseColor, distance * 40)
       : baseColor,
+    heightScale: heightFactor,
   };
 }
 
@@ -114,10 +121,10 @@ function hueToRgb(p: number, q: number, t: number): number {
 
 /** All effects off (baseline) */
 export const NO_EFFECTS: ActiveEffects = {
-  opacity: false, scale: false, parallax: false, colorShift: false,
+  opacity: false, scale: false, parallax: false, colorShift: false, heightExpand: false,
 };
 
 /** All effects on */
 export const ALL_EFFECTS: ActiveEffects = {
-  opacity: true, scale: true, parallax: true, colorShift: true,
+  opacity: true, scale: true, parallax: true, colorShift: true, heightExpand: true,
 };
